@@ -18,6 +18,13 @@ class DatabaseSeeder extends Seeder
             RoadSignSeeder::class,
             BannerSeeder::class,
             AdvisorSeeder::class,
+            HospitalSeeder::class,
+            LearningCategorySeeder::class,
+            LearningChapterSeeder::class,
+            LearningQuizQuestionSeeder::class,
+            LearningMockTestSeeder::class,
+            AchievementSeeder::class,
+            ProgramSeeder::class,
         ]);
     }
 }

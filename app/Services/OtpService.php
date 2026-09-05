@@ -38,7 +38,7 @@ class OtpService
      * Returns true only if: record exists, not expired, not used, hash matches.
      * Marks the record as used on success.
      */
-    public function verify(string $identifier, string $otp, string $purpose): bool
+    public function verify(string $identifier, string $otp, string $purpose, bool $markUsed = true): bool
     {
         $record = OtpCode::where('identifier', $identifier)
                          ->where('purpose', $purpose)
@@ -58,7 +58,9 @@ class OtpService
             return false;
         }
 
-        $record->update(['used_at' => now()]);
+        if ($markUsed) {
+            $record->update(['used_at' => now()]);
+        }
 
         return true;
     }

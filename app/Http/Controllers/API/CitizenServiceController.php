@@ -27,18 +27,12 @@ class CitizenServiceController extends Controller
             });
         }
 
-        $services = $query->get()->map(fn($s) => [
-            'id'          => $s->id,
-            'slug'        => $s->slug,
-            'title'       => $s->title,
-            'title_np'    => $s->title_np,
-            'description' => $s->description,
-            'category'    => $s->category,
-            'icon'        => $s->icon,
-            'color'       => $s->color,
-        ]);
+        $services = $query->get();
 
-        return response()->json(['success' => true, 'data' => $services]);
+        return response()->json([
+            'success' => true, 
+            'data' => \App\Http\Resources\CitizenServiceResource::collection($services)
+        ]);
     }
 
     /**
@@ -50,23 +44,7 @@ class CitizenServiceController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => [
-                'id'                  => $service->id,
-                'slug'                => $service->slug,
-                'title'               => $service->title,
-                'title_np'            => $service->title_np,
-                'description'         => $service->description,
-                'description_np'      => $service->description_np,
-                'category'            => $service->category,
-                'eligibility'         => $service->eligibility,
-                'required_documents'  => $service->required_documents,
-                'application_steps'   => $service->application_steps,
-                'fee'                 => $service->fee,
-                'fee_updated_at'      => $service->fee_updated_at?->toDateString(),
-                'processing_time'     => $service->processing_time,
-                'faqs'                => $service->faqs,
-                'official_url'        => $service->official_url,
-            ],
+            'data'    => new \App\Http\Resources\CitizenServiceResource($service),
         ]);
     }
 

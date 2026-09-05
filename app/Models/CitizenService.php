@@ -13,7 +13,7 @@ class CitizenService extends Model
         'slug', 'title', 'title_np', 'description', 'description_np',
         'category', 'icon', 'color', 'eligibility',
         'required_documents', 'application_steps', 'fee', 'fee_updated_at',
-        'processing_time', 'faqs', 'official_url', 'sort_order', 'is_active',
+        'processing_time', 'faqs', 'official_url', 'video_url', 'sort_order', 'is_active',
     ];
 
     protected $casts = [

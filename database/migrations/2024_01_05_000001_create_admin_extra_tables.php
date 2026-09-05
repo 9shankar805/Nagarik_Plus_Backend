@@ -27,15 +27,16 @@ return new class extends Migration
         if (!Schema::hasTable('banners')) {
             Schema::create('banners', function (Blueprint $table) {
                 $table->id();
-                $table->string('title_en');
+                $table->string('title');
                 $table->string('title_np')->nullable();
-                $table->string('subtitle_en')->nullable();
-                $table->string('subtitle_np')->nullable();
-                $table->string('cta1')->nullable();
-                $table->string('cta2')->nullable();
-                $table->string('bg_gradient')->nullable();
-                $table->string('asset_bg')->nullable();
+                $table->text('description')->nullable();
+                $table->string('image_url')->nullable();
+                $table->string('link_type')->default('none');
+                $table->string('link_value')->nullable();
+                $table->integer('sort_order')->default(0);
                 $table->boolean('is_active')->default(true);
+                $table->timestamp('starts_at')->nullable();
+                $table->timestamp('ends_at')->nullable();
                 $table->timestamps();
             });
         }

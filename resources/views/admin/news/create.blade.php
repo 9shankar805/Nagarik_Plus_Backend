@@ -78,6 +78,60 @@
             </div>
         </div>
 
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Multiple Images (Facebook-style)</label>
+            <input type="file" name="images[]" accept="image/*" multiple
+                   class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            <p class="mt-1 text-xs text-gray-500">Select multiple images (JPG, PNG, WEBP - Max 5MB each)</p>
+            @error('images') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Video File</label>
+                <input type="file" name="video_file" accept="video/*"
+                       class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                <p class="mt-1 text-xs text-gray-500">MP4, MOV, AVI, WEBM - Max 100MB</p>
+                @error('video_file') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Or Video URL</label>
+                <input type="url" name="video_url" value="{{ old('video_url') }}"
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="https://…">
+                @error('video_url') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Video Thumbnail</label>
+                <input type="file" name="video_thumbnail_file" accept="image/*"
+                       class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                @error('video_thumbnail_file') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Or Thumbnail URL</label>
+                <input type="url" name="video_thumbnail" value="{{ old('video_thumbnail') }}"
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="https://…">
+                @error('video_thumbnail') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Media Type</label>
+            <select name="media_type"
+                    class="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <option value="none" {{ old('media_type') === 'none' ? 'selected' : '' }}>None (Text only)</option>
+                <option value="image" {{ old('media_type') === 'image' ? 'selected' : '' }}>Image</option>
+                <option value="video" {{ old('media_type') === 'video' ? 'selected' : '' }}>Video</option>
+                <option value="mixed" {{ old('media_type') === 'mixed' ? 'selected' : '' }}>Mixed (Images + Video)</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500">Auto-detected if not selected</p>
+            @error('media_type') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Published At</label>

@@ -6,11 +6,11 @@
 @section('content')
 
 {{-- Search --}}
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6 flex justify-between items-start">
     <form method="GET" action="{{ route('admin.users.index') }}" class="flex gap-3">
         <input type="text" name="search" value="{{ request('search') }}"
                placeholder="Search by name, email or phone…"
-               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+               class="w-64 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
         <button type="submit"
                 class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
             Search
@@ -22,6 +22,12 @@
             </a>
         @endif
     </form>
+
+    <a href="{{ route('admin.users.create') }}" 
+       class="px-5 py-2 bg-[#4B634B] text-white rounded-lg text-sm font-medium hover:bg-[#3F523F] transition-colors flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Add New Staff
+    </a>
 </div>
 
 {{-- Table --}}

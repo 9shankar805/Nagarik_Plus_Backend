@@ -7,14 +7,23 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()->logOnly(['name', 'email', 'kyc_status', 'role'])->logOnlyDirty();
+    }
 
     protected $fillable = [
         'name',
         'email',
+        'google_id',
+        'apple_id',
         'phone',
         'password',
         'pin_code',
@@ -72,12 +81,17 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return in_array($this->role, ['admin', 'super_admin']);
+        return in_array($this->role, ['admin', 'super_admin', 'learning_admin']);
     }
 
     public function isSuperAdmin(): bool
     {
         return $this->role === 'super_admin';
+    }
+
+    public function isLearningAdmin(): bool
+    {
+        return $this->role === 'learning_admin';
     }
 
     public function activityLogs()
@@ -145,6 +159,90 @@ class User extends Authenticatable
     public function advisorReviews()
     {
         return $this->hasMany(AdvisorReview::class);
+    }
+
+    // Calling relations
+    public function callsAsCaller()
+    {
+        return $this->hasMany(Call::class, 'caller_id');
+    }
+
+    public function callsAsReceiver()
+    {
+        return $this->hasMany(Call::class, 'receiver_id');
+    }
+
+    public function allCalls()
+    {
+        return Call::where('caller_id', $this->id)
+            ->orWhere('receiver_id', $this->id);
+    }
+
+    // Learning Center — Ambition Guru features
+    public function streak()
+    {
+        return $this->hasOne(UserStreak::class);
+    }
+
+    public function studyActivity()
+    {
+        return $this->hasMany(UserStudyActivity::class);
+    }
+
+    public function dailyQuizEntries()
+    {
+        return $this->hasMany(DailyQuizEntry::class);
+    }
+
+    public function achievements()
+    {
+        return $this->hasMany(UserAchievement::class);
+    }
+
+    public function chapterRatings()
+    {
+        return $this->hasMany(ChapterRating::class);
+    }
+
+    public function flashcardProgress()
+    {
+        return $this->hasMany(UserFlashcardProgress::class);
+    }
+
+    public function practiceSessions()
+    {
+        return $this->hasMany(PracticeSession::class);
+    }
+
+    // Learning Center relations
+    public function testSessions()
+    {
+        return $this->hasMany(TestSession::class);
+    }
+
+    public function competitionRegistrations()
+    {
+        return $this->hasMany(CompetitionRegistration::class);
+    }
+
+    public function competitionAttempts()
+    {
+        return $this->hasMany(CompetitionAttempt::class);
+    }
+
+    public function learningProgress()
+    {
+        return $this->hasMany(UserLearningProgress::class);
+    }
+
+    public function bookmarks()
+    {
+        return $this->hasMany(UserBookmark::class);
+    }
+
+    public function leaderboardEntries()
+    {
+        return $this->hasMany(LeaderboardEntry::class);
     }
 
     /**

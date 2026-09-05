@@ -10,15 +10,15 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
-        $adminEmail = config('app.admin_email', 'admin@nagarikplus.com');
-        $adminPassword = config('app.admin_password', 'password');
+        $adminEmail = env('ADMIN_DEFAULT_EMAIL', 'admin@nagarikplus.com');
+        $adminPassword = env('ADMIN_DEFAULT_PASSWORD', 'Admin@123');
 
         $admin = User::updateOrCreate(
             ['email' => $adminEmail],
             [
                 'name' => 'Super Admin',
                 'phone' => '9800000000',
-                'password' => Hash::make($adminPassword),
+                'password' => $adminPassword,
                 'role' => 'super_admin',
                 'email_verified_at' => now(),
             ]

@@ -9,7 +9,7 @@
 </div>
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-3xl">
-    <form method="POST" action="{{ route('admin.road-signs.store') }}" class="space-y-6">
+    <form method="POST" action="{{ route('admin.road-signs.store') }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -40,7 +40,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Category <span class="text-red-500">*</span></label>
                 <select name="category" required
@@ -58,11 +58,20 @@
                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500">
                 @error('color_code') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
             </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Image URL</label>
                 <input type="url" name="image_url" value="{{ old('image_url') }}" placeholder="https://…"
                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 @error('image_url') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Image File</label>
+                <input type="file" name="image_file" accept="image/*"
+                       class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                @error('image_file') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
             </div>
         </div>
 

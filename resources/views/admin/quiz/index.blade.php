@@ -19,7 +19,9 @@
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Difficulty</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -36,10 +38,25 @@
                             </span>
                         </td>
                         <td class="px-6 py-3">
+                            @if($q->topic_id)
+                                <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-700">
+                                    {{ str_replace('_', ' ', $q->topic_id) }}
+                                </span>
+                            @else
+                                <span class="text-gray-300 text-xs">—</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-3">
                             <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full
                                 {{ $q->difficulty === 'easy' ? 'bg-green-100 text-green-700' :
                                    ($q->difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }}">
                                 {{ ucfirst($q->difficulty) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-3 text-center">
+                            <span class="font-mono text-xs font-semibold
+                                {{ ($q->difficulty_weight ?? 1) >= 2 ? 'text-red-600' : (($q->difficulty_weight ?? 1) <= 0.5 ? 'text-green-600' : 'text-yellow-600') }}">
+                                ×{{ number_format($q->difficulty_weight ?? 1.00, 2) }}
                             </span>
                         </td>
                         <td class="px-6 py-3 text-center">
@@ -69,7 +86,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-400">No questions yet.</td>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-400">No questions yet.</td>
                     </tr>
                 @endforelse
             </tbody>

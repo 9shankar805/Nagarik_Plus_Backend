@@ -15,9 +15,11 @@
     <table class="w-full text-left border-collapse text-sm">
         <thead class="bg-gray-50 border-b border-gray-100 text-gray-600 uppercase text-xs">
             <tr>
+                <th class="py-3 px-4">Order</th>
                 <th class="py-3 px-4">Title (EN / NP)</th>
-                <th class="py-3 px-4">Subtitle</th>
-                <th class="py-3 px-4">CTA Text</th>
+                <th class="py-3 px-4">Description</th>
+                <th class="py-3 px-4">Link Type</th>
+                <th class="py-3 px-4">Schedule</th>
                 <th class="py-3 px-4">Status</th>
                 <th class="py-3 px-4 text-right">Actions</th>
             </tr>
@@ -25,12 +27,25 @@
         <tbody class="divide-y divide-gray-100">
             @forelse($banners as $banner)
             <tr class="hover:bg-gray-50 transition">
+                <td class="py-3 px-4 text-gray-600 font-mono">{{ $banner->sort_order }}</td>
                 <td class="py-3 px-4 font-semibold text-gray-900">
-                    <div>{{ $banner->title_en }}</div>
+                    <div>{{ $banner->title }}</div>
                     <div class="text-xs text-gray-500 font-normal">{{ $banner->title_np }}</div>
                 </td>
-                <td class="py-3 px-4 text-gray-600">{{ $banner->subtitle_en ?? '-' }}</td>
-                <td class="py-3 px-4 text-gray-600">{{ $banner->cta1 ?? 'View' }}</td>
+                <td class="py-3 px-4 text-gray-600 max-w-xs truncate">{{ $banner->description ?? '-' }}</td>
+                <td class="py-3 px-4">
+                    <span class="px-2 py-1 text-xs font-medium rounded bg-blue-50 text-blue-700">{{ ucfirst($banner->link_type) }}</span>
+                    @if($banner->link_value)
+                        <div class="text-xs text-gray-500 mt-1 truncate max-w-[120px]">{{ $banner->link_value }}</div>
+                    @endif
+                </td>
+                <td class="py-3 px-4 text-xs text-gray-600">
+                    @if($banner->starts_at || $banner->ends_at)
+                        <div>{{ $banner->starts_at ? $banner->starts_at->format('M j, Y') : '—' }} → {{ $banner->ends_at ? $banner->ends_at->format('M j, Y') : '∞' }}</div>
+                    @else
+                        <span class="text-gray-400">Always</span>
+                    @endif
+                </td>
                 <td class="py-3 px-4">
                     @if($banner->is_active)
                         <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
@@ -49,7 +64,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="5" class="py-8 text-center text-gray-500">No banners found. Click "+ Add New Banner" to create one.</td>
+                <td colspan="7" class="py-8 text-center text-gray-500">No banners found. Click "+ Add New Banner" to create one.</td>
             </tr>
             @endforelse
         </tbody>

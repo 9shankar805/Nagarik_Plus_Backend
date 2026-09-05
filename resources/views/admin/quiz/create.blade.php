@@ -33,11 +33,40 @@
             </div>
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Difficulty Level</label>
-                <select name="difficulty" required class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                <select name="difficulty" required id="difficulty_select"
+                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                        onchange="autoWeight(this.value)">
                     <option value="easy">Easy</option>
                     <option value="medium" selected>Medium</option>
                     <option value="hard">Hard</option>
                 </select>
+            </div>
+        </div>
+
+        {{-- NEW: Topic + Weight ──────────────────────────────────────────────── --}}
+        <div class="grid grid-cols-2 gap-4 p-4 bg-purple-50 rounded-xl border border-purple-100">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    Topic / Sub-topic
+                    <span class="ml-1 text-xs font-normal text-gray-400">(for analytics radar chart)</span>
+                </label>
+                <input type="text" name="topic_id" value="{{ old('topic_id') }}"
+                       placeholder="e.g. fundamental_rights, kinematics, budgeting"
+                       class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:ring-purple-400 text-sm">
+                <p class="text-xs text-gray-400 mt-1">Use snake_case slug. Groups questions for weak-area analysis.</p>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">
+                    Difficulty Weight
+                    <span class="ml-1 text-xs font-normal text-gray-400">(ELO scoring)</span>
+                </label>
+                <input type="number" name="difficulty_weight" id="difficulty_weight"
+                       value="{{ old('difficulty_weight', '1.00') }}"
+                       min="0.1" max="5" step="0.1"
+                       class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-400 focus:ring-purple-400 text-sm">
+                <p class="text-xs text-gray-400 mt-1">
+                    Auto-filled: Easy=0.5, Medium=1.0, Hard=2.0. Override for special questions.
+                </p>
             </div>
         </div>
 
@@ -107,4 +136,14 @@
         </div>
     </form>
 </div>
+
+<script>
+function autoWeight(difficulty) {
+    const map = { easy: '0.50', medium: '1.00', hard: '2.00' };
+    const w = document.getElementById('difficulty_weight');
+    if (w) w.value = map[difficulty] ?? '1.00';
+}
+// Init on load
+autoWeight(document.getElementById('difficulty_select')?.value ?? 'medium');
+</script>
 @endsection

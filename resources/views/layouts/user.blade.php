@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nagarik+ — @yield('title', 'Dashboard')</title>
     <link rel="icon" href="/icon.png" type="image/png">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -88,6 +89,16 @@
                 Learning
             </a>
 
+            <a href="{{ route('user.file-transfer') }}"
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E1E8E1] hover:text-[#4A5D4A] text-gray-600 font-medium transition-all
+                  {{ request()->routeIs('user.file-transfer') ? 'bg-[#4A5D4A] text-white' : '' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                </svg>
+                Quick Share (P2P)
+            </a>
+
             <a href="{{ route('user.profile') }}"
                class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E1E8E1] hover:text-[#4A5D4A] text-gray-600 font-medium transition-all
                   {{ request()->routeIs('user.profile') ? 'bg-[#4A5D4A] text-white' : '' }}">
@@ -96,6 +107,26 @@
                           d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
                 Profile & Settings
+            </a>
+
+            <a href="{{ route('user.verification') }}"
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E1E8E1] hover:text-[#4A5D4A] text-gray-600 font-medium transition-all
+                  {{ request()->routeIs('user.verification') ? 'bg-[#4A5D4A] text-white' : '' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                Verify Documents
+            </a>
+
+            <a href="{{ route('user.nid-download') }}"
+               class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E1E8E1] hover:text-[#4A5D4A] text-gray-600 font-medium transition-all
+                  {{ request()->routeIs('user.nid-download') ? 'bg-[#4A5D4A] text-white' : '' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Download eNID Card
             </a>
         </nav>
 

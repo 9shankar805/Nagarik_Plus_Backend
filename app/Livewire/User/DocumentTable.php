@@ -87,11 +87,17 @@ class DocumentTable extends Component
             'citizenship' => 'cit1759940267390.png',
             'voter_id' => 'voterid.png',
             'birth_certificate' => 'birthcertificate.png',
+            'marriage_certificate' => 'marriagecertificate.png',
+            'migration_certificate' => 'migrationcertificate.png',
+            'death_certificate' => 'deathcertificate.png',
             'vehicle_bluebook' => 'SSF1752476396810.png',
             'insurance' => 'cims1752476325868.png',
             'medical' => 'pcr1752476863055.png',
             'property' => 'dolma1752476593369.png',
             'academic' => 'slc1631011325238.jpg',
+            'nea_bill' => 'nea1752476414169.png',
+            'gunaso' => 'gunaso1752476491251.png',
+            'press_pass' => 'patrakar1752477622244.png',
             'other' => 'unnamed.webp',
         ];
 
@@ -126,8 +132,8 @@ class DocumentTable extends Component
                 'title' => $this->title,
                 'type' => $this->type,
                 'document_number' => $this->document_number,
-                'issue_date' => $this->issue_date,
-                'expiry_date' => $this->expiry_date,
+                'issue_date' => $this->issue_date ?: null,
+                'expiry_date' => $this->expiry_date ?: null,
             ]);
 
             if ($this->file) {

@@ -19,11 +19,17 @@ class Document extends Model
         'citizenship'          => 'Citizenship',
         'voter_id'             => 'Voter ID',
         'birth_certificate'   => 'Birth Certificate',
+        'marriage_certificate' => 'Marriage Certificate',
+        'migration_certificate'=> 'Migration Certificate',
+        'death_certificate'    => 'Death Certificate',
         'vehicle_bluebook'    => 'Vehicle Bluebook',
         'insurance'            => 'Insurance',
         'medical'              => 'Medical',
         'property'             => 'Property',
         'academic'             => 'Academic',
+        'nea_bill'             => 'NEA Bill',
+        'gunaso'               => 'Gunaso / Grievance',
+        'press_pass'           => 'Press Pass',
         'other'                => 'Other',
     ];
 

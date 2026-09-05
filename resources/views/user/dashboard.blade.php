@@ -116,11 +116,17 @@
                                         'citizenship' => 'cit1759940267390.png',
                                         'voter_id' => 'voterid.png',
                                         'birth_certificate' => 'birthcertificate.png',
+                                        'marriage_certificate' => 'marriagecertificate.png',
+                                        'migration_certificate' => 'migrationcertificate.png',
+                                        'death_certificate' => 'deathcertificate.png',
                                         'vehicle_bluebook' => 'SSF1752476396810.png',
                                         'insurance' => 'cims1752476325868.png',
                                         'medical' => 'pcr1752476863055.png',
                                         'property' => 'dolma1752476593369.png',
                                         'academic' => 'slc1631011325238.jpg',
+                                        'nea_bill' => 'nea1752476414169.png',
+                                        'gunaso' => 'gunaso1752476491251.png',
+                                        'press_pass' => 'patrakar1752477622244.png',
                                         'other' => 'unnamed.webp',
                                     ];
                                 @endphp
@@ -162,6 +168,42 @@
 
     <!-- Right Column -->
     <div class="space-y-6">
+        <!-- Document Verification -->
+        <div class="bg-gradient-to-br from-white to-blue-50 rounded-3xl border border-blue-100 shadow-sm overflow-hidden">
+            <div class="px-7 py-5 border-b border-blue-100 flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-gray-900">Government Document Verify</h2>
+                    <p class="text-xs text-gray-500">NID · Licence · PAN · Citizenship</p>
+                </div>
+            </div>
+            <div class="p-5">
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    @foreach([
+                        ['NID', 'blue',   'M15 9a2 2 0 10-4 0v5a2 2 0 01-2 2h6m-6-4h4m8 0a9 9 0 11-18 0 9 9 0 0118 0z'],
+                        ['Licence', 'green', 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z'],
+                        ['PAN', 'orange', 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
+                        ['Citizenship', 'purple', 'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2'],
+                    ] as [$label, $color, $path])
+                    <div class="flex items-center gap-2 bg-{{ $color }}-50 border border-{{ $color }}-100 rounded-xl px-3 py-2">
+                        <svg class="w-4 h-4 text-{{ $color }}-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $path }}"/>
+                        </svg>
+                        <span class="text-xs font-semibold text-{{ $color }}-800">{{ $label }}</span>
+                    </div>
+                    @endforeach
+                </div>
+                <a href="{{ route('user.nid-download') }}"
+                   class="block w-full text-center bg-[#4A5D4A] hover:bg-[#3A4D3A] text-white text-xs font-semibold py-2.5 rounded-xl transition-all shadow-sm">
+                    Go to Verification →
+                </a>
+            </div>
+        </div>
         <!-- Upcoming Reminders -->
         <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="px-7 py-5 border-b border-gray-100">

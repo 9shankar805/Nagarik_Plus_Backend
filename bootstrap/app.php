@@ -10,19 +10,28 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
         // JSON responses for API
         $middleware->statefulApi();
+        
+        $middleware->api(prepend: [
+            \App\Http\Middleware\ApiLocalization::class,
+        ]);
 
         // Apply maintenance mode globally
         $middleware->use([\App\Http\Middleware\MaintenanceMode::class]);
 
+        // Locale middleware for web group
+        $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
+
         // Admin portal alias
         $middleware->alias([
-            'admin'       => \App\Http\Middleware\AdminMiddleware::class,
-            'not.banned'  => \App\Http\Middleware\EnsureNotBanned::class,
+            'admin'        => \App\Http\Middleware\AdminMiddleware::class,
+            'not.banned'   => \App\Http\Middleware\EnsureNotBanned::class,
+            'kyc.verified' => \App\Http\Middleware\KycVerified::class,
         ]);
 
         // Redirect unauthenticated guests to /login

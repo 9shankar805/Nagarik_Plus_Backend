@@ -21,7 +21,8 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">District</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Province</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone / Email</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -37,7 +38,27 @@
                         </td>
                         <td class="px-6 py-3 text-gray-600">{{ $office->district }}</td>
                         <td class="px-6 py-3 text-gray-600">{{ $office->province }}</td>
-                        <td class="px-6 py-3 text-gray-600">{{ $office->phone ?? '—' }}</td>
+                        <td class="px-6 py-3">
+                            <div class="text-sm">
+                                @if($office->phone)
+                                    <div class="text-gray-800"><span class="text-gray-500 text-xs">P:</span> {{ $office->phone }}</div>
+                                @else
+                                    <div class="text-red-500 text-xs font-medium">No Phone</div>
+                                @endif
+                                @if($office->email)
+                                    <div class="text-gray-800 mt-1"><span class="text-gray-500 text-xs">E:</span> {{ $office->email }}</div>
+                                @else
+                                    <div class="text-red-500 text-xs font-medium mt-1">No Email</div>
+                                @endif
+                            </div>
+                        </td>
+                        <td class="px-6 py-3 text-center">
+                            @if($office->latitude && $office->longitude)
+                                <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-green-50 text-green-700 border border-green-200" title="{{ $office->latitude }}, {{ $office->longitude }}">Mapped</span>
+                            @else
+                                <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-red-50 text-red-700 border border-red-200">Unmapped</span>
+                            @endif
+                        </td>
                         <td class="px-6 py-3 text-center">
                             @if($office->is_active)
                                 <span class="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-700">Yes</span>
@@ -65,7 +86,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-12 text-center text-gray-400">No offices yet.</td>
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-400">No offices yet.</td>
                     </tr>
                 @endforelse
             </tbody>

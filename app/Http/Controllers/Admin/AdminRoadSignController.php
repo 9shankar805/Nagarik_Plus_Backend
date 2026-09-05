@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\RoadSign;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminRoadSignController extends Controller
 {
@@ -28,11 +29,17 @@ class AdminRoadSignController extends Controller
             'meaning_np' => 'nullable|string',
             'category'   => 'required|in:warning,mandatory,informational',
             'image_url'  => 'nullable|url',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'color_code' => 'nullable|string|max:20',
             'is_active'  => 'boolean',
         ]);
 
         $data['is_active'] = $request->boolean('is_active');
+
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('learning/road_signs', 'public');
+            $data['image_url'] = Storage::url($path);
+        }
 
         RoadSign::create($data);
         return redirect()->route('admin.road-signs.index')->with('success', 'Road sign created.');
@@ -57,11 +64,21 @@ class AdminRoadSignController extends Controller
             'meaning_np' => 'nullable|string',
             'category'   => 'required|in:warning,mandatory,informational',
             'image_url'  => 'nullable|url',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'color_code' => 'nullable|string|max:20',
             'is_active'  => 'boolean',
         ]);
 
         $data['is_active'] = $request->boolean('is_active');
+
+        if ($request->hasFile('image_file')) {
+            if ($roadSign->image_url && str_starts_with($roadSign->image_url, '/storage/')) {
+                $oldPath = str_replace('/storage/', '', $roadSign->image_url);
+                Storage::disk('public')->delete($oldPath);
+            }
+            $path = $request->file('image_file')->store('learning/road_signs', 'public');
+            $data['image_url'] = Storage::url($path);
+        }
 
         $roadSign->update($data);
         return redirect()->route('admin.road-signs.index')->with('success', 'Road sign updated.');

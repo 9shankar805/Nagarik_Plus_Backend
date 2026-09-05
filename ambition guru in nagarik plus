@@ -1,0 +1,138 @@
+# Ambition Guru Implementation Plan
+
+This document outlines the architectural changes, database schema updates, and API additions required to upgrade the existing `Nagarik+` Learning Center into a fully-featured, AI-driven learning platform identical to the **Ambition Guru** app.
+
+## Current State Analysis
+Your existing system (`LearningController.php`) already supports a robust foundation:
+- **Mock Tests & Timed Sessions:** Already implemented with negative marking.
+- **Competitions:** Live exam battles with leaderboards and entry fees.
+- **Study Materials:** Chapter-based reading with read-time tracking.
+- **Progress Tracking & Bookmarks:** Basic completion tracking.
+
+## Missing Core Features (The "Ambition Guru" Gap)
+To become an exact clone of Ambition Guru, we must build the following modules:
+1. **Live & Recorded Video Classes:** Streaming live classes and VOD (Video on Demand) archives.
+2. **"Ask" Feature (Discussion Forum):** Dedicated doubt-clearing section where experts answer student questions.
+3. **Advanced AI Analytics & Percentile Scoring:** Deep analysis of strengths/weaknesses per topic, not just raw scores.
+4. **Adaptive Mock Tests:** Algorithms that adjust question difficulty in real-time based on the user's previous answers.
+5. **Parental Monitoring:** A separate portal/app interface for parents to monitor their child's attendance and test scores.
+6. **Subscription Packages:** Bundled access to mock tests and video courses (rather than per-competition fees).
+
+---
+
+## Proposed Changes
+
+### 1. Database Schema Additions (Migrations)
+
+#### [NEW] `create_video_lectures_table`
+- `id`, `learning_category_id`, `title`, `description`, `video_url`, `duration_minutes`, `is_live`, `live_scheduled_at`, `status`
+- Enables recorded videos and scheduling of Live classes.
+
+#### [NEW] `create_doubts_and_discussions_table`
+- `id`, `user_id`, `expert_id` (nullable), `subject`, `question_text`, `image_url`, `answer_text`, `status` (pending/answered)
+- Replicates the "Ask" feature for doubt resolution.
+
+#### [NEW] `create_user_subscriptions_table`
+- `id`, `user_id`, `plan_name`, `price`, `expires_at`, `status`
+- Controls premium access to lectures and tests.
+
+#### [NEW] `create_parental_links_table`
+- `id`, `student_id`, `parent_id`, `link_code`, `is_verified`
+- Connects a parent account to a student account for monitoring.
+
+#### [MODIFY] `quiz_questions` table
+- Add `topic_id` (for granular topic-wise analytics).
+- Add `difficulty_weight` (for ELO-based adaptive scoring).
+
+#### [MODIFY] `test_attempts` table
+- Add `percentile_score` (calculated against all users).
+- Add `topic_breakdown` (JSON of performance per topic).
+
+---
+
+### 2. Algorithmic Enhancements
+
+#### Adaptive Mock Test Algorithm
+Instead of just randomizing questions, the session generation will use an **Adaptive Difficulty Model**:
+1. User starts with medium difficulty questions.
+2. If they answer correctly, the next question pulled is of higher difficulty (earning more weighted points).
+3. If they answer wrong, the next question is easier.
+
+#### Percentile & AI Analytics Engine
+1. **Percentile Calculation:** A background job (Command) will run daily to compute the percentile rank of every test attempt compared to the global average of that specific test.
+2. **Topic Strengths/Weaknesses:** Upon test submission, the algorithm will group correct/wrong answers by `topic_id` and generate a radar chart JSON payload for the frontend to render "Weak Areas" (e.g., "Physics: Kinematics - 30%").
+
+---
+
+### 3. API Route Updates (`routes/api.php`)
+
+#### [NEW] Video Lectures
+```php
+Route::get('learning/videos', [VideoLectureController::class, 'index']);
+Route::get('learning/videos/{id}', [VideoLectureController::class, 'show']);
+```
+
+#### [NEW] Ask / Doubts
+```php
+Route::post('learning/ask', [DoubtController::class, 'store']);
+Route::get('learning/ask/my-doubts', [DoubtController::class, 'index']);
+```
+
+#### [NEW] Parental Dashboard
+```php
+Route::post('parent/link', [ParentController::class, 'linkStudent']);
+Route::get('parent/student-progress', [ParentController::class, 'progress']);
+```
+
+#### [MODIFY] Mock Test Submit (`LearningController@submitAnswers`)
+Update the submission logic to calculate the topic-wise breakdown and update the user's global ELO rating based on the question difficulty weights.
+
+---
+
+## Open Questions
+
+> [!WARNING]
+> **Video Hosting:** Live and VOD video hosting requires significant bandwidth. Should we integrate with YouTube Live / Vimeo APIs, or use AWS MediaLive/S3 for native video streaming?
+
+> [!IMPORTANT]
+> **Monetization:** Do you want to implement subscription plans (e.g., Monthly Pass for all features) or stick to a pay-per-test/pay-per-course model?
+
+> [!NOTE]
+> **Adaptive Algorithm:** Do you want the mock tests to be strictly adaptive (like the GRE/GMAT) where questions change dynamically on the fly, or static (pre-generated) but with deep post-test analytics?
+
+## Verification Plan
+### Automated Tests
+- `php artisan test --filter VideoLectureTest`
+- `php artisan test --filter AdaptiveScoringTest` (to ensure the algorithm calculates weighted scores properly).
+
+### Manual Verification
+- A user can register, purchase a subscription, watch a video lecture, and post a doubt.
+- A user can take a mock test and see their percentile rank and radar chart of strengths/weaknesses.
+- A parent user can link via a 6-digit code to their child's account and view their mock test scores.
+Gap Analysis: Our Learning Center vs Ambition Guru
+✅ What We Already Have
+Categories, Chapters/Notes, Mock Tests (timed, negative marking)
+Quiz questions bank (5 categories, 82 questions)
+Competitions with leaderboard + prize pool
+Bookmarks, Read progress, Personal stats
+Admin CRUD for all entities
+❌ What's Missing (Ambition Guru Features)
+Feature	Status
+Daily Quiz / Question of the Day	❌ Missing
+Streak System (daily login/study streak)	❌ Missing
+Flashcards (term ↔ definition study mode)	❌ Missing
+Practice Mode (category drill — only wrong answers, unlimited)	❌ Missing
+Personal Learning Profile / Dashboard	❌ Missing
+Syllabus tracker (per category %)	❌ Missing
+Question Difficulty Levels in API response	⚠️ Partial
+Wrong-only re-test (retry only incorrectly answered questions)	❌ Missing
+Notes/Chapters rating	❌ Missing
+Video lecture links per chapter	⚠️ Field exists, no dedicated endpoint
+Question bank filter by chapter	❌ Missing
+User badges / achievements	❌ Missing
+Notifications for daily quiz	❌ Missing
+Practice session (unlimited, no timer)	❌ Missing
+Let me now implement all missing features.
+
+
+1 tool call

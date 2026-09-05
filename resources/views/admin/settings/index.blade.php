@@ -82,6 +82,31 @@
                 </label>
             </div>
 
+            <div class="pt-4 border-t border-gray-100 space-y-3">
+                <h3 class="text-sm font-bold text-gray-800">Static Support Content (App Profile)</h3>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Help & FAQ</label>
+                    <textarea name="help_faq" rows="4" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('help_faq', $settings['help_faq']) }}</textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Privacy Policy</label>
+                    <textarea name="privacy_policy" rows="4" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('privacy_policy', $settings['privacy_policy']) }}</textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">About App</label>
+                    <textarea name="about_app" rows="4" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('about_app', $settings['about_app']) }}</textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Rate App URL (App Store / Play Store link)</label>
+                    <input type="url" name="rate_app_url" value="{{ old('rate_app_url', $settings['rate_app_url']) }}"
+                           class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://play.google.com/store/apps/details?id=...">
+                </div>
+            </div>
+
             <div class="pt-2">
                 <button type="submit"
                         class="px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">

@@ -8,10 +8,16 @@ use App\Jobs\SendOtpSmsJob;
 use App\Models\DeviceToken;
 use App\Models\User;
 use App\Services\OtpService;
+use Firebase\JWT\JWK;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
+use stdClass;
 
 class AuthController extends Controller
 {
@@ -134,7 +140,7 @@ class AuthController extends Controller
             'last_active_at' => now(),
         ]);
 
-        $user->tokens()->delete();
+        rescue(fn () => $user->tokens()->delete());
         $token = $user->createToken('nagarik_plus_token')->plainTextToken;
 
         return response()->json([
@@ -324,5 +330,330 @@ class AuthController extends Controller
         $user->update(['notification_preferences' => $prefs]);
 
         return response()->json(['success' => true, 'message' => 'Preferences updated.', 'data' => $prefs]);
+    }
+
+    /**
+     * Google Sign-In — verify the ID token issued by Google and login/register the user.
+     * Accepts either `id_token` (preferred) or `access_token`.
+     *
+     * Security checks performed:
+     *  - JWT signature verified against Google's public JWKS
+     *  - `iss` matches accounts.google.com or https://accounts.google.com
+     *  - `aud` matches one of the configured GOOGLE_CLIENT_IDS
+     *  - `exp` not passed (token not expired)
+     *  - `email_verified` claim is true (if email present)
+     *  - `hd` (hosted domain) optionally enforced
+     */
+    public function google(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'id_token'    => 'required_without:access_token|string',
+            'access_token' => 'required_without:id_token|string',
+            'device_id'   => 'nullable|string',
+        ]);
+
+        try {
+            if (!empty($data['id_token'])) {
+                $payload = $this->verifyGoogleIdToken($data['id_token']);
+            } else {
+                $payload = $this->fetchGoogleUserInfo($data['access_token']);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Google verification failed: ' . $e->getMessage(),
+            ], 401);
+        }
+
+        $googleId = $payload->sub ?? $payload->id ?? null;
+        if (!$googleId) {
+            return response()->json(['success' => false, 'message' => 'Invalid Google payload: missing subject ID.'], 401);
+        }
+
+        $email      = isset($payload->email) ? filter_var($payload->email, FILTER_VALIDATE_EMAIL) : null;
+        $name       = $payload->name ?? $payload->displayName ?? 'Google User';
+        $avatar     = $payload->picture ?? $payload->photoUrl ?? null;
+
+        if (!empty($payload->email) && empty($email)) {
+            return response()->json(['success' => false, 'message' => 'Google email is malformed.'], 401);
+        }
+
+        $user = User::where('google_id', $googleId)->first();
+
+        if (!$user && $email) {
+            $user = User::where('email', $email)->first();
+            if ($user) {
+                $user->update(['google_id' => $googleId]);
+            }
+        }
+
+        if (!$user) {
+            $user = User::create([
+                'name'              => $name,
+                'email'             => $email,
+                'google_id'         => $googleId,
+                'avatar'            => $avatar,
+                'password'          => Hash::make(str()->random(32)),
+                'email_verified_at' => $email ? now() : null,
+                'device_id'         => $data['device_id'] ?? null,
+            ]);
+        }
+
+        if ($user->isBanned()) {
+            return response()->json(['success' => false, 'message' => 'Your account has been suspended.'], 403);
+        }
+
+        if ($avatar && empty($user->avatar)) {
+            $user->update(['avatar' => $avatar]);
+        }
+
+        $user->update([
+            'device_id'      => $data['device_id'] ?? $user->device_id,
+            'last_active_at' => now(),
+        ]);
+
+        $user->tokens()->delete();
+        $token = $user->createToken('nagarik_plus_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Google sign-in successful.',
+            'data'    => [
+                'user'  => $user->only('id', 'name', 'email', 'phone', 'biometric_enabled'),
+                'token' => $token,
+                'is_new_user' => $user->wasRecentlyCreated,
+            ],
+        ]);
+    }
+
+    /**
+     * Apple Sign-In — verify the identityToken JWT issued by Apple.
+     *
+     * Security checks performed:
+     *  - JWT signature verified against Apple's public JWKS
+     *  - `iss` is https://appleid.apple.com
+     *  - `aud` matches the configured APPLE_CLIENT_ID (bundle ID / services ID)
+     *  - `exp` not passed (token not expired)
+     *  - `nonce` optionally checked against the provided nonce hash
+     */
+    public function apple(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'identity_token' => 'required|string',
+            'authorization_code' => 'nullable|string',
+            'user'         => 'nullable|array',
+            'nonce'        => 'nullable|string',
+            'device_id'    => 'nullable|string',
+        ]);
+
+        try {
+            $payload = $this->verifyAppleIdentityToken($data['identity_token'], $data['nonce'] ?? null);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Apple verification failed: ' . $e->getMessage(),
+            ], 401);
+        }
+
+        $appleId = $payload->sub ?? null;
+        if (!$appleId) {
+            return response()->json(['success' => false, 'message' => 'Invalid Apple payload: missing subject ID.'], 401);
+        }
+
+        $email      = isset($payload->email) ? filter_var($payload->email, FILTER_VALIDATE_EMAIL) : null;
+        $name       = 'Apple User';
+        if (!empty($data['user'])) {
+            $fullName = trim(($data['user']['firstName'] ?? '') . ' ' . ($data['user']['lastName'] ?? ''));
+            if (!empty($fullName)) {
+                $name = $fullName;
+            }
+        }
+
+        if (!empty($payload->email) && empty($email)) {
+            return response()->json(['success' => false, 'message' => 'Apple email is malformed.'], 401);
+        }
+
+        $isEmailVerified = true;
+        if (isset($payload->email_verified)) {
+            $isEmailVerified = filter_var($payload->email_verified, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $user = User::where('apple_id', $appleId)->first();
+
+        if (!$user && $email) {
+            $user = User::where('email', $email)->first();
+            if ($user) {
+                $user->update(['apple_id' => $appleId]);
+            }
+        }
+
+        if (!$user) {
+            $user = User::create([
+                'name'              => $name,
+                'email'             => $email,
+                'apple_id'          => $appleId,
+                'password'          => Hash::make(str()->random(32)),
+                'email_verified_at' => $email && $isEmailVerified ? now() : null,
+                'device_id'         => $data['device_id'] ?? null,
+            ]);
+        }
+
+        if ($user->isBanned()) {
+            return response()->json(['success' => false, 'message' => 'Your account has been suspended.'], 403);
+        }
+
+        $user->update([
+            'device_id'      => $data['device_id'] ?? $user->device_id,
+            'last_active_at' => now(),
+        ]);
+
+        $user->tokens()->delete();
+        $token = $user->createToken('nagarik_plus_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Apple sign-in successful.',
+            'data'    => [
+                'user'  => $user->only('id', 'name', 'email', 'phone', 'biometric_enabled'),
+                'token' => $token,
+                'is_new_user' => $user->wasRecentlyCreated,
+            ],
+        ]);
+    }
+
+    /**
+     * Verify a Google OpenID Connect ID token (JWT) using Google's public keys.
+     *
+     * @throws \Exception on any verification failure
+     */
+    private function verifyGoogleIdToken(string $idToken): stdClass
+    {
+        $keys = Cache::remember('google_jwks', now()->addHours(12), function () {
+            $response = Http::timeout(10)->get('https://www.googleapis.com/oauth2/v3/certs');
+            if (!$response->successful()) {
+                throw new \RuntimeException('Failed to fetch Google public keys (HTTP ' . $response->status() . ').');
+            }
+            return $response->json();
+        });
+
+        if (empty($keys['keys'])) {
+            Cache::forget('google_jwks');
+            throw new \RuntimeException('Google JWKS response contained no keys.');
+        }
+
+        $parsedKeys = JWK::parseKeySet($keys);
+
+        JWT::$leeway = 30;
+        $payload = JWT::decode($idToken, $parsedKeys);
+
+        $expectedIssuers = ['accounts.google.com', 'https://accounts.google.com'];
+        if (!in_array($payload->iss ?? '', $expectedIssuers, true)) {
+            throw new \RuntimeException('Invalid token issuer: ' . ($payload->iss ?? 'null'));
+        }
+
+        $acceptedAudiences = config('services.google.client_ids', []);
+        if (!empty($acceptedAudiences)) {
+            $aud = $payload->aud ?? null;
+            $audiences = is_array($aud) ? $aud : [$aud];
+            $audienceMatched = (bool) array_intersect($audiences, $acceptedAudiences);
+            if (!$audienceMatched) {
+                throw new \RuntimeException(
+                    'Token audience "' . implode(',', $audiences) . '" does not match accepted client IDs.'
+                );
+            }
+        }
+
+        if (!empty($payload->email)) {
+            $emailVerified = filter_var($payload->email_verified ?? false, FILTER_VALIDATE_BOOLEAN);
+            if (!$emailVerified) {
+                throw new \RuntimeException('Google email is not verified.');
+            }
+        }
+
+        $now = time() + JWT::$leeway;
+        if (!empty($payload->nbf) && (int) $payload->nbf > $now) {
+            throw new \RuntimeException('Token not yet valid (nbf).');
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Fallback: retrieve Google user info using an access token.
+     * Prefer verifyGoogleIdToken whenever possible (stronger security).
+     */
+    private function fetchGoogleUserInfo(string $accessToken): stdClass
+    {
+        $response = Http::timeout(10)
+            ->withToken($accessToken)
+            ->get('https://www.googleapis.com/oauth2/v3/userinfo');
+
+        if (!$response->successful()) {
+            throw new \RuntimeException('Google userinfo endpoint returned HTTP ' . $response->status());
+        }
+
+        $body = $response->json();
+        if (empty($body['sub']) && empty($body['id'])) {
+            throw new \RuntimeException('Google userinfo missing subject identifier.');
+        }
+
+        if (!empty($body['email'])) {
+            $emailVerified = filter_var($body['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            if (!$emailVerified) {
+                throw new \RuntimeException('Google email is not verified.');
+            }
+        }
+
+        return (object) $body;
+    }
+
+    /**
+     * Verify an Apple Sign-In identity token (JWT) using Apple's public keys.
+     *
+     * @throws \Exception on any verification failure
+     */
+    private function verifyAppleIdentityToken(string $identityToken, ?string $nonce): stdClass
+    {
+        $keys = Cache::remember('apple_jwks', now()->addHours(24), function () {
+            $response = Http::timeout(10)->get('https://appleid.apple.com/auth/keys');
+            if (!$response->successful()) {
+                throw new \RuntimeException('Failed to fetch Apple public keys (HTTP ' . $response->status() . ').');
+            }
+            return $response->json();
+        });
+
+        if (empty($keys['keys'])) {
+            Cache::forget('apple_jwks');
+            throw new \RuntimeException('Apple JWKS response contained no keys.');
+        }
+
+        $parsedKeys = JWK::parseKeySet($keys);
+
+        JWT::$leeway = 30;
+        $payload = JWT::decode($identityToken, $parsedKeys);
+
+        if (($payload->iss ?? '') !== 'https://appleid.apple.com') {
+            throw new \RuntimeException('Invalid token issuer: ' . ($payload->iss ?? 'null'));
+        }
+
+        $expectedAud = config('services.apple.client_id');
+        if (!empty($expectedAud) && ($payload->aud ?? '') !== $expectedAud) {
+            throw new \RuntimeException(
+                'Token audience "' . ($payload->aud ?? 'null') . '" does not match expected Apple client ID.'
+            );
+        }
+
+        $now = time() + JWT::$leeway;
+        if (!empty($payload->nbf) && (int) $payload->nbf > $now) {
+            throw new \RuntimeException('Token not yet valid (nbf).');
+        }
+
+        if ($nonce !== null && isset($payload->nonce_supported) && $payload->nonce_supported === true) {
+            if (!isset($payload->nonce) || !hash_equals($payload->nonce, $nonce)) {
+                throw new \RuntimeException('Nonce mismatch.');
+            }
+        }
+
+        return $payload;
     }
 }

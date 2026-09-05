@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CitizenService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminServiceController extends Controller
 {
@@ -35,6 +36,8 @@ class AdminServiceController extends Controller
             'processing_time'     => 'nullable|string|max:255',
             'faqs'                => 'nullable|string',
             'official_url'        => 'nullable|url',
+            'video_url'           => 'nullable|url',
+            'video_file'          => 'nullable|mimes:mp4,mov,avi,webm|max:102400',
             'sort_order'          => 'integer|min:0',
             'is_active'           => 'boolean',
         ]);
@@ -50,6 +53,10 @@ class AdminServiceController extends Controller
             } else {
                 $data[$field] = null;
             }
+        }
+        if ($request->hasFile('video_file')) {
+            $path = $request->file('video_file')->store('services/videos', 'public');
+            $data['video_url'] = Storage::url($path);
         }
 
         CitizenService::create($data);
@@ -82,6 +89,8 @@ class AdminServiceController extends Controller
             'processing_time'     => 'nullable|string|max:255',
             'faqs'                => 'nullable|string',
             'official_url'        => 'nullable|url',
+            'video_url'           => 'nullable|url',
+            'video_file'          => 'nullable|mimes:mp4,mov,avi,webm|max:102400',
             'sort_order'          => 'integer|min:0',
             'is_active'           => 'boolean',
         ]);
@@ -96,6 +105,14 @@ class AdminServiceController extends Controller
             } else {
                 $data[$field] = null;
             }
+        }
+        if ($request->hasFile('video_file')) {
+            if ($service->video_url && str_starts_with($service->video_url, '/storage/')) {
+                $oldPath = str_replace('/storage/', '', $service->video_url);
+                Storage::disk('public')->delete($oldPath);
+            }
+            $path = $request->file('video_file')->store('services/videos', 'public');
+            $data['video_url'] = Storage::url($path);
         }
 
         $service->update($data);

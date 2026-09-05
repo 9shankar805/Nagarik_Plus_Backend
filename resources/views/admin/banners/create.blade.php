@@ -7,41 +7,73 @@
 </div>
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 max-w-2xl">
-    <form action="{{ route('admin.banners.store') }}" method="POST" class="space-y-4">
+    <form action="{{ route('admin.banners.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
         @csrf
+
         <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Title (English)</label>
-            <input type="text" name="title_en" required placeholder="e.g. File Police Reports Easily"
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Title (English) <span class="text-red-500">*</span></label>
+            <input type="text" name="title" required placeholder="e.g. File Police Reports Easily via Nagarik+"
                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
         </div>
 
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Title (Nepali)</label>
-            <input type="text" name="title_np" placeholder="उदा. प्रहरी रिपोर्ट अब नागरिक एपबाट सजिलै।"
+            <input type="text" name="title_np" placeholder="नागरिक+ मार्फत सजिलै प्रहरी रिपोर्ट फाइल गर्नुहोस्"
                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
         </div>
 
         <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Subtitle (English)</label>
-            <input type="text" name="subtitle_en" placeholder="e.g. Anywhere, anytime – secure & fast."
-                   class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+            <textarea name="description" rows="3" placeholder="Brief description of the banner message"
+                      class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"></textarea>
         </div>
 
         <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Subtitle (Nepali)</label>
-            <input type="text" name="subtitle_np" placeholder="उदा. जहाँ पनि, जतिबेला पनि – सुरक्षित र छिटो।"
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Banner Image</label>
+            <input type="file" name="image" accept="image/jpeg,image/jpg,image/png,image/webp"
+                   class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+            <p class="text-xs text-gray-500 mt-1">Upload image (JPG, PNG, WEBP - Max 5MB)</p>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Or Image URL</label>
+            <input type="url" name="image_url" placeholder="https://example.com/banner.jpg"
                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
         </div>
 
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">CTA Button 1</label>
-                <input type="text" name="cta1" placeholder="e.g. File Report →"
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Link Type <span class="text-red-500">*</span></label>
+                <select name="link_type" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                    <option value="none">None</option>
+                    <option value="news">News Article</option>
+                    <option value="service">Citizen Service</option>
+                    <option value="external">External URL</option>
+                    <option value="document">Document</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Sort Order</label>
+                <input type="number" name="sort_order" value="0" min="0"
+                       class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Link Value</label>
+            <input type="text" name="link_value" placeholder="ID, slug, or full URL depending on link type"
+                   class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Starts At</label>
+                <input type="datetime-local" name="starts_at"
                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
             </div>
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">CTA Button 2</label>
-                <input type="text" name="cta2" placeholder="e.g. Learn More"
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Ends At</label>
+                <input type="datetime-local" name="ends_at"
                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
             </div>
         </div>

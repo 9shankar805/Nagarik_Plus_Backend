@@ -41,9 +41,11 @@ class AdvisorController extends Controller
         $advisors = $query->paginate(15);
 
         if ($advisors->isEmpty()) {
+            $fallbackUserId = 1;
             $fallbackAdvisors = [
                 [
-                    'id' => 'adv_001',
+                    'id' => 1,
+                    'user_id' => $fallbackUserId,
                     'name' => 'Advocate Ramesh Bikram Shah',
                     'title_en' => 'Senior Public Rights & Legal Specialist',
                     'title_np' => 'वरिष्ठ अधिवक्ता तथा सार्वजनिक कानुन विशेषज्ञ',
@@ -57,7 +59,8 @@ class AdvisorController extends Controller
                     'location' => 'Kathmandu, Nepal',
                 ],
                 [
-                    'id' => 'adv_002',
+                    'id' => 2,
+                    'user_id' => $fallbackUserId,
                     'name' => 'CA Anjali Karki (FCA)',
                     'title_en' => 'Chartered Accountant & Tax Officer Advisor',
                     'title_np' => 'चार्टर्ड एकाउन्टेन्ट तथा वरिष्ठ कर सल्लाहकार',
@@ -81,8 +84,10 @@ class AdvisorController extends Controller
     {
         $advisor = Advisor::find($id);
         if (!$advisor) {
+            $fallbackUserId = 1;
             return response()->json(['success' => true, 'data' => [
                 'id' => $id,
+                'user_id' => $fallbackUserId,
                 'name' => 'Advocate Ramesh Bikram Shah',
                 'title_en' => 'Senior Public Rights & Legal Specialist',
                 'title_np' => 'वरिष्ठ अधिवक्ता तथा सार्वजनिक कानुन विशेषज्ञ',

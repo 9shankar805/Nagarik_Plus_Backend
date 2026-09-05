@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Dashboard')
-@section('subtitle', 'Overview of your Nagarik+ platform')
+@section('title', __('admin.dashboard'))
+@section('subtitle', __('admin.overview_subtitle'))
 
 @section('content')
 
@@ -9,42 +9,49 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
     <div class="bg-[#E1E8E1] rounded-2xl p-6 shadow-sm">
         <p class="text-3xl font-bold text-[#334033] mb-1">{{ number_format($stats['total_users']) }}</p>
-        <p class="text-sm text-[#4A5D4A]">Registered Citizens</p>
+        <p class="text-sm text-[#4A5D4A]">{{ __('admin.registered_citizens') }}</p>
     </div>
 
     <div class="bg-[#E1E8E1] rounded-2xl p-6 shadow-sm">
         <p class="text-3xl font-bold text-[#334033] mb-1">{{ number_format($stats['total_documents']) }}</p>
-        <p class="text-sm text-[#4A5D4A]">Digital Locker Docs</p>
+        <p class="text-sm text-[#4A5D4A]">{{ __('admin.digital_locker_docs') }}</p>
     </div>
 
     <div class="bg-[#E8DFE1] rounded-2xl p-6 shadow-sm">
         <p class="text-3xl font-bold text-[#403333] mb-1">{{ number_format($stats['total_advisors']) }}</p>
-        <p class="text-sm text-[#5D4A4A]">Nagarik Advisors</p>
+        <p class="text-sm text-[#5D4A4A]">{{ __('admin.advisors') }}</p>
     </div>
 
     <div class="bg-[#E8DFE1] rounded-2xl p-6 shadow-sm">
         <p class="text-3xl font-bold text-[#403333] mb-1">{{ number_format($stats['total_reminders']) }}</p>
-        <p class="text-sm text-[#5D4A4A]">Active Reminders</p>
+        <p class="text-sm text-[#5D4A4A]">{{ __('admin.active_reminders') }}</p>
     </div>
 
     <div class="bg-[#E1E8E1] rounded-2xl p-6 shadow-sm">
         <p class="text-3xl font-bold text-[#334033] mb-1">{{ number_format($stats['total_hospitals']) }}</p>
-        <p class="text-sm text-[#4A5D4A]">Emergency Hospitals</p>
+        <p class="text-sm text-[#4A5D4A]">{{ __('admin.emergency_hospitals') }}</p>
     </div>
 
     <div class="bg-[#E1E8E1] rounded-2xl p-6 shadow-sm">
         <p class="text-3xl font-bold text-[#334033] mb-1">{{ number_format($stats['published_news']) }}</p>
-        <p class="text-sm text-[#4A5D4A]">Published News</p>
+        <p class="text-sm text-[#4A5D4A]">{{ __('admin.published_news') }}</p>
     </div>
 
     <div class="bg-[#E8DFE1] rounded-2xl p-6 shadow-sm">
         <p class="text-3xl font-bold text-[#403333] mb-1">{{ number_format($stats['total_offices']) }}</p>
-        <p class="text-sm text-[#5D4A4A]">Government Offices</p>
+        <p class="text-sm text-[#5D4A4A]">{{ __('admin.government_offices') }}</p>
     </div>
 
     <div class="bg-[#E8DFE1] rounded-2xl p-6 shadow-sm">
         <p class="text-3xl font-bold text-[#403333] mb-1">{{ number_format($stats['total_tokens']) }}</p>
-        <p class="text-sm text-[#5D4A4A]">FCM Device Tokens</p>
+        <p class="text-sm text-[#5D4A4A]">{{ __('admin.fcm_device_tokens') }}</p>
+    </div>
+
+    <div class="bg-[#E1E8E1] rounded-2xl p-6 shadow-sm">
+        <a href="{{ route('admin.verification.audit-logs') }}" class="block">
+            <p class="text-3xl font-bold text-[#334033] mb-1">{{ number_format($stats['verification_today']) }}</p>
+            <p class="text-sm text-[#4A5D4A]">Doc Verifications Today</p>
+        </a>
     </div>
 </div>
 
@@ -52,17 +59,17 @@
     {{-- Recent Users --}}
     <div class="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <h2 class="font-semibold text-gray-800">Recent Users</h2>
-            <a href="{{ route('admin.users.index') }}" class="text-sm text-[#4A5D4A] hover:text-[#334033] font-medium">View all →</a>
+            <h2 class="font-semibold text-gray-800">{{ __('admin.recent_users') }}</h2>
+            <a href="{{ route('admin.users.index') }}" class="text-sm text-[#4A5D4A] hover:text-[#334033] font-medium">{{ __('admin.view_all') }}</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('admin.name') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('admin.email') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('admin.phone') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('admin.joined') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -74,7 +81,7 @@
                             <td class="px-6 py-3 text-gray-500">{{ $user->created_at->format('d M Y') }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No users yet.</td></tr>
+                        <tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">{{ __('admin.no_records') }}</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -85,8 +92,8 @@
         {{-- Recent News --}}
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                <h2 class="font-semibold text-gray-800">Recent News</h2>
-                <a href="{{ route('admin.news.index') }}" class="text-sm text-[#4A5D4A] hover:text-[#334033] font-medium">View all →</a>
+                <h2 class="font-semibold text-gray-800">{{ __('admin.recent_news') }}</h2>
+                <a href="{{ route('admin.news.index') }}" class="text-sm text-[#4A5D4A] hover:text-[#334033] font-medium">{{ __('admin.view_all') }}</a>
             </div>
             <div class="p-6">
                 @forelse($recentNews as $article)
@@ -102,7 +109,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-8 text-gray-400 text-sm">No news yet.</div>
+                    <div class="text-center py-8 text-gray-400 text-sm">{{ __('admin.no_records') }}</div>
                 @endforelse
             </div>
         </div>

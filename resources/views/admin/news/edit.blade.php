@@ -9,7 +9,7 @@
 </div>
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-4xl">
-    <form method="POST" action="{{ route('admin.news.update', $news) }}" class="space-y-6">
+    <form method="POST" action="{{ route('admin.news.update', $news) }}" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT')
 
@@ -75,6 +75,77 @@
                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 @error('image_url') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
             </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Multiple Images (Facebook-style)</label>
+            <input type="file" name="images[]" accept="image/*" multiple
+                   class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            <p class="mt-1 text-xs text-gray-500">Select multiple images (JPG, PNG, WEBP - Max 5MB each)</p>
+            @if($news->images)
+                @php $existingImages = json_decode($news->images, true); @endphp
+                @if(is_array($existingImages) && count($existingImages) > 0)
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        @foreach($existingImages as $img)
+                            <img src="{{ asset($img) }}" class="h-16 w-16 object-cover rounded border">
+                        @endforeach
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">{{ count($existingImages) }} existing images (will be replaced if new images uploaded)</p>
+                @endif
+            @endif
+            @error('images') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Upload Video File</label>
+                <input type="file" name="video_file" accept="video/*"
+                       class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                <p class="mt-1 text-xs text-gray-500">MP4, MOV, AVI, WEBM - Max 100MB</p>
+                @if($news->video_url)
+                    <p class="mt-1 text-xs text-gray-500">Current: {{ basename($news->video_url) }}</p>
+                @endif
+                @error('video_file') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Or Video URL</label>
+                <input type="url" name="video_url" value="{{ old('video_url', $news->video_url) }}"
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="https://…">
+                @error('video_url') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Video Thumbnail</label>
+                <input type="file" name="video_thumbnail_file" accept="image/*"
+                       class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                @if($news->video_thumbnail)
+                    <img src="{{ asset($news->video_thumbnail) }}" class="h-16 mt-2 rounded border">
+                @endif
+                @error('video_thumbnail_file') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Or Thumbnail URL</label>
+                <input type="url" name="video_thumbnail" value="{{ old('video_thumbnail', $news->video_thumbnail) }}"
+                       class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder="https://…">
+                @error('video_thumbnail') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Media Type</label>
+            <select name="media_type"
+                    class="w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <option value="none" {{ old('media_type', $news->media_type) === 'none' ? 'selected' : '' }}>None (Text only)</option>
+                <option value="image" {{ old('media_type', $news->media_type) === 'image' ? 'selected' : '' }}>Image</option>
+                <option value="video" {{ old('media_type', $news->media_type) === 'video' ? 'selected' : '' }}>Video</option>
+                <option value="mixed" {{ old('media_type', $news->media_type) === 'mixed' ? 'selected' : '' }}>Mixed (Images + Video)</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500">Current: {{ ucfirst($news->media_type ?? 'none') }}</p>
+            @error('media_type') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

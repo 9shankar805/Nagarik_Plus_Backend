@@ -62,7 +62,7 @@ class PdfTools extends Component
     public $resizerMaintainAspect = true;
 
     // Image Converter
-    public $converterImage = null;
+    public $converterImages = [];
     public $converterFormat = 'webp'; // webp, jpeg, png
 
     // Images to PDF
@@ -176,9 +176,7 @@ class PdfTools extends Component
             'compressorImage' => 'required|file',
         ]);
 
-        $filePath = $this->compressorImage->store('temp', 'local');
-        $fullPath = storage_path('app/' . $filePath);
-
+        $fullPath = $this->compressorImage->getRealPath();
         $img = Image::read($fullPath);
         
         $extension = $this->compressorImage->guessExtension();
@@ -197,7 +195,7 @@ class PdfTools extends Component
             $img->save($compressedPath);
         }
 
-        Storage::delete($filePath);
+        
 
         $this->recordHistory('Image Compressor', "Compressed image at {$quality}% quality");
 
@@ -215,9 +213,7 @@ class PdfTools extends Component
             'resizerImage' => 'required|file',
         ]);
 
-        $filePath = $this->resizerImage->store('temp', 'local');
-        $fullPath = storage_path('app/' . $filePath);
-
+        $fullPath = $this->resizerImage->getRealPath();
         $img = Image::read($fullPath);
         
         $width = intval($this->resizerWidth);
@@ -235,47 +231,86 @@ class PdfTools extends Component
 
         $img->save($resizedPath);
 
-        Storage::delete($filePath);
+        
 
         return response()->download($resizedPath, $resizedFileName)->deleteFileAfterSend(true);
     }
 
     public function convertImage()
     {
-        if (!$this->converterImage) {
+        if (empty($this->converterImages)) {
             session()->flash('error', 'Please upload an image to convert');
             return;
         }
 
         $this->validate([
-            'converterImage' => 'required|file',
+            'converterImages.*' => 'required|file',
         ]);
 
-        $filePath = $this->converterImage->store('temp', 'local');
-        $fullPath = storage_path('app/' . $filePath);
+        if (count($this->converterImages) === 1) {
+            $file = $this->converterImages[0];
+            $fullPath = $file->getRealPath();
+            $img = Image::read($fullPath);
 
-        $img = Image::read($fullPath);
+            $extension = $this->converterFormat;
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $convertedFileName = $originalName . '.' . $extension;
+            $convertedPath = storage_path('app/public/' . $convertedFileName);
 
-        $extension = $this->converterFormat;
-        $originalName = pathinfo($this->converterImage->getClientOriginalName(), PATHINFO_FILENAME);
-        $convertedFileName = $originalName . '.' . $extension;
-        $convertedPath = storage_path('app/public/' . $convertedFileName);
+            if ($extension == 'jpeg' || $extension == 'jpg') {
+                $img->toJpeg(quality: 85)->save($convertedPath);
+            } elseif ($extension == 'png') {
+                $img->toPng()->save($convertedPath);
+            } elseif ($extension == 'webp') {
+                $img->toWebp(quality: 85)->save($convertedPath);
+            } else {
+                $img->save($convertedPath);
+            }
 
-        if ($extension == 'jpeg' || $extension == 'jpg') {
-            $img->toJpeg(quality: 85)->save($convertedPath);
-        } elseif ($extension == 'png') {
-            $img->toPng()->save($convertedPath);
-        } elseif ($extension == 'webp') {
-            $img->toWebp(quality: 85)->save($convertedPath);
-        } else {
-            $img->save($convertedPath);
+            $this->recordHistory('Image Converter', "Converted image to {$extension} format");
+
+            return response()->download($convertedPath, $convertedFileName)->deleteFileAfterSend(true);
         }
 
-        Storage::delete($filePath);
+        $tempDir = 'converted_' . time();
+        $zipPath = storage_path('app/public/' . $tempDir . '.zip');
+        $zip = new \ZipArchive();
+        $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $tempFiles = [];
 
-        $this->recordHistory('Image Converter', "Converted image to {$extension} format");
+        foreach ($this->converterImages as $index => $file) {
+            $fullPath = $file->getRealPath();
+            $img = Image::read($fullPath);
 
-        return response()->download($convertedPath, $convertedFileName)->deleteFileAfterSend(true);
+            $extension = $this->converterFormat;
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            // Ensure unique filenames in zip if there are duplicates
+            $convertedFileName = $originalName . '_' . $index . '.' . $extension;
+            $convertedPath = storage_path('app/public/' . uniqid() . '_' . $convertedFileName);
+
+            if ($extension == 'jpeg' || $extension == 'jpg') {
+                $img->toJpeg(quality: 85)->save($convertedPath);
+            } elseif ($extension == 'png') {
+                $img->toPng()->save($convertedPath);
+            } elseif ($extension == 'webp') {
+                $img->toWebp(quality: 85)->save($convertedPath);
+            } else {
+                $img->save($convertedPath);
+            }
+
+            $zip->addFile($convertedPath, $convertedFileName);
+            $tempFiles[] = $convertedPath;
+        }
+
+        $zip->close();
+        
+        foreach ($tempFiles as $tempFile) {
+            @unlink($tempFile);
+        }
+
+        $this->recordHistory('Image Converter', "Converted " . count($this->converterImages) . " images to {$this->converterFormat} format");
+
+        return response()->download($zipPath, $tempDir . '.zip')->deleteFileAfterSend(true);
     }
 
     public function imagesToPdf()
@@ -295,12 +330,10 @@ class PdfTools extends Component
         $html = '<!DOCTYPE html><html><head><style>img{max-width:100%;height:auto;page-break-after:always;}</style></head><body>';
 
         foreach ($this->imagesToPdfFiles as $file) {
-            $filePath = $file->store('temp', 'local');
-            $fullPath = storage_path('app/' . $filePath);
+            $fullPath = $file->getRealPath();
             $imageData = base64_encode(file_get_contents($fullPath));
             $mime = $file->getMimeType();
             $html .= "<img src='data:{$mime};base64,{$imageData}'>";
-            Storage::delete($filePath);
         }
 
         $html .= '</body></html>';
@@ -322,13 +355,15 @@ class PdfTools extends Component
         }
 
         $merger = new Merger();
-        $tempFiles = [];
+        $compatibleFiles = [];
 
         foreach ($this->pdfMergerFiles as $file) {
-            $filePath = $file->store('temp', 'local');
-            $fullPath = storage_path('app/' . $filePath);
-            $merger->addFile($fullPath);
-            $tempFiles[] = $filePath;
+            $fullPath = $file->getRealPath();
+            $compatiblePath = $this->ensureCompatiblePdf($fullPath);
+            $merger->addFile($compatiblePath);
+            if ($compatiblePath !== $fullPath) {
+                $compatibleFiles[] = $compatiblePath;
+            }
         }
 
         $mergedContent = $merger->merge();
@@ -336,9 +371,11 @@ class PdfTools extends Component
         $mergedPath = storage_path('app/public/' . $mergedFileName);
         file_put_contents($mergedPath, $mergedContent);
 
-        foreach ($tempFiles as $filePath) {
-            Storage::delete($filePath);
+        foreach ($compatibleFiles as $path) {
+            @unlink($path);
         }
+
+        
 
         $this->recordHistory('PDF Merger', "Merged " . count($this->pdfMergerFiles) . " PDF files");
 
@@ -352,12 +389,12 @@ class PdfTools extends Component
             return;
         }
 
-        $filePath = $this->pdfSplitterFile->store('temp', 'local');
-        $fullPath = storage_path('app/' . $filePath);
+        $fullPath = $this->pdfSplitterFile->getRealPath();
+        $compatiblePath = $this->ensureCompatiblePdf($fullPath);
 
         try {
             $pdf = new Fpdi();
-            $pageCount = $pdf->setSourceFile($fullPath);
+            $pageCount = $pdf->setSourceFile($compatiblePath);
             
             $from = max(1, intval($this->splitFromPage));
             $to = min($pageCount, intval($this->splitToPage));
@@ -381,10 +418,10 @@ class PdfTools extends Component
             $splitPath = storage_path('app/public/' . $splitFileName);
             $pdf->Output('F', $splitPath);
             
-            Storage::delete($filePath);
+            if ($compatiblePath !== $fullPath) @unlink($compatiblePath);
             return response()->download($splitPath, $splitFileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            Storage::delete($filePath);
+            if ($compatiblePath !== $fullPath) @unlink($compatiblePath);
             session()->flash('error', 'Error splitting PDF: ' . $e->getMessage());
         }
     }
@@ -396,12 +433,12 @@ class PdfTools extends Component
             return;
         }
 
-        $filePath = $this->pdfRotatorFile->store('temp', 'local');
-        $fullPath = storage_path('app/' . $filePath);
+        $fullPath = $this->pdfRotatorFile->getRealPath();
+        $compatiblePath = $this->ensureCompatiblePdf($fullPath);
 
         try {
             $pdf = new Fpdi();
-            $pageCount = $pdf->setSourceFile($fullPath);
+            $pageCount = $pdf->setSourceFile($compatiblePath);
             
             for ($i = 1; $i <= $pageCount; $i++) {
                 $template = $pdf->importPage($i);
@@ -417,10 +454,10 @@ class PdfTools extends Component
             $rotatedPath = storage_path('app/public/' . $rotatedFileName);
             $pdf->Output('F', $rotatedPath);
             
-            Storage::delete($filePath);
+            if ($compatiblePath !== $fullPath) @unlink($compatiblePath);
             return response()->download($rotatedPath, $rotatedFileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            Storage::delete($filePath);
+            if ($compatiblePath !== $fullPath) @unlink($compatiblePath);
             session()->flash('error', 'Error rotating PDF: ' . $e->getMessage());
         }
     }
@@ -432,12 +469,12 @@ class PdfTools extends Component
             return;
         }
 
-        $filePath = $this->pdfWatermarkerFile->store('temp', 'local');
-        $fullPath = storage_path('app/' . $filePath);
+        $fullPath = $this->pdfWatermarkerFile->getRealPath();
+        $compatiblePath = $this->ensureCompatiblePdf($fullPath);
 
         try {
             $pdf = new Fpdi();
-            $pageCount = $pdf->setSourceFile($fullPath);
+            $pageCount = $pdf->setSourceFile($compatiblePath);
             
             for ($i = 1; $i <= $pageCount; $i++) {
                 $template = $pdf->importPage($i);
@@ -462,10 +499,10 @@ class PdfTools extends Component
             $watermarkedPath = storage_path('app/public/' . $watermarkedFileName);
             $pdf->Output('F', $watermarkedPath);
             
-            Storage::delete($filePath);
+            if ($compatiblePath !== $fullPath) @unlink($compatiblePath);
             return response()->download($watermarkedPath, $watermarkedFileName)->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            Storage::delete($filePath);
+            if ($compatiblePath !== $fullPath) @unlink($compatiblePath);
             session()->flash('error', 'Error adding watermark: ' . $e->getMessage());
         }
     }
@@ -484,8 +521,7 @@ class PdfTools extends Component
         $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 
         foreach ($this->batchImages as $file) {
-            $filePath = $file->store('temp', 'local');
-            $fullPath = storage_path('app/' . $filePath);
+            $fullPath = $file->getRealPath();
 
             $img = Image::read($fullPath);
 
@@ -494,7 +530,7 @@ class PdfTools extends Component
                     $quality = max(10, min(100, intval($this->batchQuality)));
                     $extension = $file->guessExtension();
                     $processedFileName = 'compressed_' . $file->getClientOriginalName();
-                    $processedPath = storage_path('app/temp/' . $processedFileName);
+                    $processedPath = storage_path('app/public/' . $processedFileName);
 
                     if (in_array($extension, ['jpeg', 'jpg'])) {
                         $img->toJpeg(quality: $quality)->save($processedPath);
@@ -511,7 +547,7 @@ class PdfTools extends Component
                     $width = intval($this->batchWidth);
                     $img->scale($width);
                     $processedFileName = 'resized_' . $file->getClientOriginalName();
-                    $processedPath = storage_path('app/temp/' . $processedFileName);
+                    $processedPath = storage_path('app/public/' . $processedFileName);
                     $img->save($processedPath);
                     break;
                 
@@ -519,7 +555,7 @@ class PdfTools extends Component
                     $extension = $this->batchFormat;
                     $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                     $processedFileName = $originalName . '.' . $extension;
-                    $processedPath = storage_path('app/temp/' . $processedFileName);
+                    $processedPath = storage_path('app/public/' . $processedFileName);
 
                     if ($extension == 'jpeg' || $extension == 'jpg') {
                         $img->toJpeg(quality: 85)->save($processedPath);
@@ -534,7 +570,6 @@ class PdfTools extends Component
             }
 
             $zip->addFile($processedPath, $processedFileName);
-            Storage::delete($filePath);
             @unlink($processedPath);
         }
 
@@ -553,8 +588,7 @@ class PdfTools extends Component
             'cropperImage' => 'required|file',
         ]);
 
-        $filePath = $this->cropperImage->store('temp', 'local');
-        $fullPath = storage_path('app/' . $filePath);
+        $fullPath = $this->cropperImage->getRealPath();
 
         $img = Image::read($fullPath);
         $img->crop($this->cropWidth, $this->cropHeight, $this->cropX, $this->cropY);
@@ -563,7 +597,6 @@ class PdfTools extends Component
         $croppedPath = storage_path('app/public/' . $croppedFileName);
         $img->save($croppedPath);
 
-        Storage::delete($filePath);
         return response()->download($croppedPath, $croppedFileName)->deleteFileAfterSend(true);
     }
 
@@ -578,8 +611,7 @@ class PdfTools extends Component
             'filterImage' => 'required|file',
         ]);
 
-        $filePath = $this->filterImage->store('temp', 'local');
-        $fullPath = storage_path('app/' . $filePath);
+        $fullPath = $this->filterImage->getRealPath();
 
         $img = Image::read($fullPath);
 
@@ -602,7 +634,6 @@ class PdfTools extends Component
         $filteredPath = storage_path('app/public/' . $filteredFileName);
         $img->save($filteredPath);
 
-        Storage::delete($filePath);
         return response()->download($filteredPath, $filteredFileName)->deleteFileAfterSend(true);
     }
 
@@ -613,22 +644,26 @@ class PdfTools extends Component
             return;
         }
 
+        $firstImage = Image::read($this->gifImages[0]->getRealPath());
+        $firstImage->scale(400);
+        $canvasWidth = 400;
+        $canvasHeight = $firstImage->height();
+
         $tempPaths = [];
-        $gifBuilder = GifBuilder::canvas();
+        $gifBuilder = GifBuilder::canvas($canvasWidth, $canvasHeight);
 
         foreach ($this->gifImages as $file) {
-            $filePath = $file->store('temp', 'local');
-            $fullPath = storage_path('app/' . $filePath);
+            $fullPath = $file->getRealPath();
 
             // Resize images to have consistent dimensions
             $img = Image::read($fullPath);
-            $img->scale(400);
-            $resizedPath = storage_path('app/temp/gif_frame_' . uniqid() . '.png');
+            $img->resize($canvasWidth, $canvasHeight);
+            $resizedPath = storage_path('app/public/gif_frame_' . uniqid() . '.png');
             $img->toPng()->save($resizedPath);
 
             $tempPaths[] = $resizedPath;
-            $gifBuilder->addFrame($resizedPath, $this->gifDelay);
-            Storage::delete($filePath);
+            // Delay is expected in seconds (e.g., 0.1 for 100ms)
+            $gifBuilder->addFrame($resizedPath, $this->gifDelay / 1000);
         }
 
         $gifBuilder->setLoops($this->gifLoop);
@@ -646,5 +681,24 @@ class PdfTools extends Component
     public function render()
     {
         return view('livewire.user.pdf-tools');
+    }
+
+    private function ensureCompatiblePdf($fullPath)
+    {
+        $tempPath = storage_path('app/public/compatible_' . uniqid() . '.pdf');
+        
+        $command = sprintf(
+            'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -sOutputFile=%s %s 2>&1',
+            escapeshellarg($tempPath),
+            escapeshellarg($fullPath)
+        );
+        
+        exec($command, $output, $returnVar);
+
+        if ($returnVar === 0 && file_exists($tempPath)) {
+            return $tempPath;
+        }
+
+        return $fullPath;
     }
 }

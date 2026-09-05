@@ -1,89 +1,62 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/20 to-pink-50/30 text-gray-800 font-sans selection:bg-purple-500 selection:text-white pb-20 relative overflow-hidden {{ auth()->check() ? '-mx-8 -mt-6' : '' }}">
+<div class="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-500 selection:text-white pb-20 relative overflow-hidden {{ auth()->check() ? '-mx-8 -mt-6' : '' }}">
 
     {{-- Background Decorative Patterns --}}
-    <div class="absolute top-20 left-10 w-72 h-72 bg-purple-300/20 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute top-40 right-10 w-80 h-80 bg-pink-300/20 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute bottom-20 left-1/3 w-96 h-96 bg-blue-300/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-20 left-10 w-72 h-72 bg-emerald-300/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute top-40 right-10 w-80 h-80 bg-teal-300/10 rounded-full blur-3xl pointer-events-none"></div>
 
-    {{-- Top Floating Navigation Header Bar --}}
-    <header class="sticky top-4 z-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-white/90 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-sm px-6 py-3 flex items-center justify-between">
-
-            {{-- Brand Logo --}}
-            <a href="{{ route('home') }}" class="flex items-center gap-3">
-                <div class="relative">
-                    <img src="/icon.png" alt="Nagarik+" class="w-10 h-10 rounded-xl object-cover shadow-md">
+    {{-- Sub-Navigation Tool Selector Bar --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2">
+        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs p-2 flex items-center justify-between flex-wrap gap-2">
+            
+            <div class="flex items-center gap-2.5 px-2">
+                <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                    🛠️
                 </div>
                 <div class="flex flex-col">
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-xl font-black text-gray-900 tracking-tight">Nagarik<span class="text-purple-600">+</span></span>
-                        <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold text-[10px] tracking-wide uppercase">STUDIO</span>
-                    </div>
-                    <span class="text-[10px] text-gray-400 font-medium">Professional Image & PDF Utilities</span>
+                    <span class="text-xs font-black text-slate-900 leading-none">Nagarik+ Studio</span>
+                    <span class="text-[10px] text-slate-500 font-medium mt-0.5">Free Image & PDF Utilities</span>
                 </div>
-            </a>
+            </div>
 
-            {{-- Center Navigation Pills --}}
-            <nav class="hidden lg:flex items-center gap-1">
+            {{-- Tool Tabs --}}
+            <div class="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
                 <button wire:click="setTool('compress')"
-                        class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 {{ $activeTool === 'compress' ? 'bg-white shadow-md shadow-purple-500/10 text-purple-700 border border-purple-100' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Compress Image
+                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap {{ $activeTool === 'compress' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span>Compress</span>
                 </button>
-
                 <button wire:click="setTool('resize')"
-                        class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 {{ $activeTool === 'resize' ? 'bg-white shadow-md shadow-purple-500/10 text-purple-700 border border-purple-100' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-                    Resize Image
+                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap {{ $activeTool === 'resize' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                    <span>Resize</span>
                 </button>
-
                 <button wire:click="setTool('crop')"
-                        class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 {{ $activeTool === 'crop' ? 'bg-white shadow-md shadow-purple-500/10 text-purple-700 border border-purple-100' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    Crop Image
+                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap {{ $activeTool === 'crop' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    <span>Crop</span>
                 </button>
-
                 <button wire:click="setTool('convert')"
-                        class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 {{ $activeTool === 'convert' ? 'bg-white shadow-md shadow-purple-500/10 text-purple-700 border border-purple-100' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-                    Convert to JPG
+                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap {{ $activeTool === 'convert' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                    <span>Convert</span>
                 </button>
-
                 <button wire:click="setTool('editor')"
-                        class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 {{ $activeTool === 'editor' ? 'bg-white shadow-md shadow-purple-500/10 text-purple-700 border border-purple-100' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    Photo Editor
+                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap {{ $activeTool === 'editor' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span>Photo Editor</span>
                 </button>
-
                 <button wire:click="setTool('all')"
-                        class="px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 {{ $activeTool === 'all' ? 'bg-white shadow-md shadow-purple-500/10 text-purple-700 border border-purple-100' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                    More Tools
+                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap {{ $activeTool === 'all' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <span>All PDF Tools</span>
                 </button>
-            </nav>
-
-            {{-- Right Action Buttons --}}
-            <div class="flex items-center gap-3">
-                @auth
-                <a href="{{ route('user.dashboard') }}" class="flex items-center gap-2 text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 px-4 py-2.5 rounded-xl transition-all">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    Dashboard
-                </a>
-                @else
-                <a href="{{ route('user.login') }}" class="text-xs font-bold text-gray-700 hover:text-purple-700 px-4 py-2.5 transition-all">
-                    Login
-                </a>
-                <a href="{{ route('user.register') }}" class="text-xs font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white px-5 py-2.5 rounded-xl shadow-md shadow-purple-500/20 hover:scale-105 active:scale-95 transition-all">
-                    Sign Up
-                </a>
-                @endauth
             </div>
 
         </div>
-    </header>
+    </div>
 
     {{-- Main Workspace Content --}}
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 relative z-10">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 relative z-10">
 
         {{-- Session Flash Notifications --}}
         @if (session()->has('success'))
@@ -111,71 +84,71 @@
 
             {{-- Left Split Information & Benefits --}}
             <div>
-                <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-white bg-gradient-to-r from-purple-600 via-pink-600 to-rose-500 px-4 py-1.5 rounded-full shadow-sm mb-6 uppercase tracking-wider">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    ULTRA FAST COMPRESSION ENGINE
-                </span>
+                <div class="inline-flex items-center gap-1.5 text-xs font-extrabold text-white bg-emerald-600 px-4 py-1.5 rounded-full shadow-xs mb-6 uppercase tracking-wider">
+                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span>ULTRA FAST COMPRESSION ENGINE</span>
+                </div>
 
-                <h1 class="text-5xl lg:text-6xl font-black text-gray-900 tracking-tight leading-[1.15] mb-4">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15] mb-4">
                     Compress Images<br>
-                    <span class="bg-gradient-to-r from-purple-600 via-pink-600 to-rose-500 bg-clip-text text-transparent">Without Losing Quality</span>
+                    <span class="text-emerald-600 font-black block mt-1">Without Losing Quality</span>
                 </h1>
 
-                <p class="text-gray-600 text-lg font-medium leading-relaxed mb-8">
+                <p class="text-slate-600 text-base sm:text-lg font-medium leading-relaxed mb-8">
                     Compress JPG, PNG, SVG, WebP or GIF files with industry-leading quality retention and lightning fast speed.
                 </p>
 
                 {{-- 2x2 Feature Cards Grid --}}
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3.5">
-                        <div class="w-11 h-11 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 flex-shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3.5">
+                        <div class="w-11 h-11 bg-emerald-600 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-xs">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                         </div>
                         <div>
-                            <h4 class="font-bold text-gray-900 text-sm">Ultra Fast</h4>
-                            <p class="text-xs text-gray-500">Compress in seconds</p>
+                            <h4 class="font-bold text-slate-900 text-sm">Ultra Fast</h4>
+                            <p class="text-xs text-slate-500">Compress in seconds</p>
                         </div>
                     </div>
 
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3.5">
-                        <div class="w-11 h-11 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 flex-shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3.5">
+                        <div class="w-11 h-11 bg-teal-600 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-xs">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                         </div>
                         <div>
-                            <h4 class="font-bold text-gray-900 text-sm">Secure</h4>
-                            <p class="text-xs text-gray-500">Your files are safe</p>
+                            <h4 class="font-bold text-slate-900 text-sm">Secure</h4>
+                            <p class="text-xs text-slate-500">Your files are safe</p>
                         </div>
                     </div>
 
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3.5">
-                        <div class="w-11 h-11 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 flex-shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3.5">
+                        <div class="w-11 h-11 bg-slate-900 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-xs">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                         </div>
                         <div>
-                            <div class="font-bold text-gray-900 text-sm">High Quality</div>
-                            <p class="text-xs text-gray-500">Best quality retention</p>
+                            <div class="font-bold text-slate-900 text-sm">High Quality</div>
+                            <p class="text-xs text-slate-500">Best quality retention</p>
                         </div>
                     </div>
 
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3.5">
-                        <div class="w-11 h-11 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 flex-shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-3.5">
+                        <div class="w-11 h-11 bg-amber-500 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-xs">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                         </div>
                         <div>
-                            <h4 class="font-bold text-gray-900 text-sm">Batch Support</h4>
-                            <p class="text-xs text-gray-500">Multiple files at once</p>
+                            <h4 class="font-bold text-slate-900 text-sm">Batch Support</h4>
+                            <p class="text-xs text-slate-500">Multiple files at once</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             {{-- Right Split Card (Dashed Upload Zone) --}}
-            <div class="bg-white rounded-3xl border-2 border-dashed border-purple-300 shadow-xl p-10 text-center relative hover:border-purple-500 transition-all duration-300 group"
+            <div class="bg-white rounded-3xl border-2 border-dashed border-emerald-400 shadow-xl p-10 text-center relative hover:border-emerald-600 transition-all duration-300 group"
                  x-data="{ isDragging: false, uploading: false, progress: 0, previewUrl: null, fileName: '', fileSize: '' }"
                  @dragover.prevent="isDragging = true"
                  @dragleave.prevent="isDragging = false"
                  @drop.prevent="isDragging = false"
-                 :class="{ 'bg-purple-50/50 border-purple-600': isDragging }"
+                 :class="{ 'bg-emerald-50/60 border-emerald-600': isDragging }"
                  x-on:livewire-upload-start="uploading = true; progress = 0"
                  x-on:livewire-upload-finish="uploading = false"
                  x-on:livewire-upload-error="uploading = false"
@@ -183,19 +156,19 @@
 
                 <div class="flex flex-col items-center justify-center py-6">
 
-                    {{-- 3D Illustration Icon Placeholder --}}
-                    <div class="w-24 h-24 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-3xl shadow-xl shadow-purple-500/30 flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {{-- Icon Badge --}}
+                    <div class="w-20 h-20 bg-emerald-600 rounded-3xl shadow-lg shadow-emerald-600/30 flex items-center justify-center mb-6 text-white group-hover:scale-105 transition-transform mx-auto">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                     </div>
 
-                    <h3 class="text-2xl font-black text-gray-900 mb-2">Drag & Drop your images here</h3>
-                    <p class="text-xs text-gray-400 font-semibold mb-6 uppercase tracking-wider">— or —</p>
+                    <h3 class="text-2xl font-black text-slate-900 mb-2">Drag & Drop your images here</h3>
+                    <p class="text-xs text-slate-500 font-extrabold mb-6 uppercase tracking-wider">— OR —</p>
 
-                    <label class="cursor-pointer bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-lg py-4 px-8 rounded-2xl shadow-lg shadow-purple-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                        <span>Select Images</span>
+                    <label class="cursor-pointer bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-base py-4 px-8 rounded-2xl shadow-lg shadow-emerald-600/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2.5 mx-auto">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        <span class="text-white font-extrabold">Select Images</span>
                         <input type="file" wire:model="compressorImage" accept="image/*" class="hidden"
                                @change="
                                    const f = $event.target.files[0];
@@ -209,19 +182,19 @@
                                ">
                     </label>
 
-                    <p class="text-xs text-gray-400 font-medium mt-6">
+                    <p class="text-xs text-slate-500 font-semibold mt-6">
                         JPG, PNG, SVG, WebP or GIF<br>
                         Max file size: 50MB
                     </p>
 
                     {{-- Live Upload Progress Bar --}}
-                    <div x-show="uploading" x-cloak class="w-full max-w-md mt-6 bg-purple-50 p-4 rounded-2xl border border-purple-200">
-                        <div class="flex justify-between text-xs font-bold text-purple-700 mb-1.5">
+                    <div x-show="uploading" x-cloak class="w-full max-w-md mt-6 bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+                        <div class="flex justify-between text-xs font-bold text-emerald-700 mb-1.5">
                             <span>Uploading image...</span>
                             <span x-text="progress + '%'"></span>
                         </div>
-                        <div class="w-full bg-purple-200 rounded-full h-2.5 overflow-hidden">
-                            <div class="bg-purple-600 h-2.5 rounded-full transition-all duration-300" :style="'width: ' + progress + '%'"></div>
+                        <div class="w-full bg-emerald-200 rounded-full h-2.5 overflow-hidden">
+                            <div class="bg-emerald-600 h-2.5 rounded-full transition-all duration-300" :style="'width: ' + progress + '%'"></div>
                         </div>
                     </div>
 
@@ -229,23 +202,23 @@
                     <template x-if="previewUrl">
                         <div class="w-full max-w-md mt-8 p-6 bg-slate-50 border border-slate-200 rounded-3xl text-left space-y-4 shadow-inner">
                             <div class="flex items-center gap-4">
-                                <img :src="previewUrl" class="w-16 h-16 object-cover rounded-2xl border border-purple-200">
+                                <img :src="previewUrl" class="w-16 h-16 object-cover rounded-2xl border border-emerald-200">
                                 <div class="flex-1 min-w-0">
-                                    <p class="font-bold text-gray-900 truncate text-sm" x-text="fileName"></p>
-                                    <p class="text-xs font-mono text-purple-600 mt-1" x-text="'Original: ' + fileSize"></p>
+                                    <p class="font-bold text-slate-900 truncate text-sm" x-text="fileName"></p>
+                                    <p class="text-xs font-mono text-emerald-600 mt-1" x-text="'Original: ' + fileSize"></p>
                                 </div>
                             </div>
 
                             <div>
-                                <div class="flex justify-between text-xs font-bold text-gray-700 mb-1.5">
+                                <div class="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
                                     <span>Compression Quality</span>
-                                    <span class="text-purple-600 font-mono font-bold">{{ $compressorQuality }}%</span>
+                                    <span class="text-emerald-600 font-mono font-bold">{{ $compressorQuality }}%</span>
                                 </div>
-                                <input type="range" wire:model="compressorQuality" min="10" max="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600">
+                                <input type="range" wire:model="compressorQuality" min="10" max="100" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
                             </div>
 
                             <button wire:click="compressImage" wire:loading.attr="disabled"
-                                    class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white py-3.5 rounded-2xl font-bold text-base shadow-lg shadow-purple-500/25">
+                                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-bold text-base shadow-lg shadow-emerald-600/30">
                                 <span wire:loading.remove wire:target="compressImage">Compress IMAGE Now</span>
                                 <span wire:loading wire:target="compressImage">Compressing...</span>
                             </button>
@@ -337,23 +310,63 @@
             <p class="text-gray-600 text-base max-w-2xl mx-auto mb-8 font-medium">Convert photos into JPG format easily.</p>
 
             <div class="bg-white rounded-3xl p-10 border-2 border-dashed border-orange-300 shadow-xl"
-                 x-data="{ uploading: false, progress: 0, previewUrl: null }">
+                 x-data="{ uploading: false, progress: 0, previewUrls: [], fileNames: [] }"
+                 x-on:livewire-upload-start="uploading = true; progress = 0"
+                 x-on:livewire-upload-finish="uploading = false"
+                 x-on:livewire-upload-error="uploading = false"
+                 x-on:livewire-upload-progress="progress = $event.detail.progress">
                 <div class="flex flex-col items-center justify-center py-6">
-                    <label class="cursor-pointer bg-orange-600 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg">
-                        <span>Select Image to Convert</span>
-                        <input type="file" wire:model="converterImage" accept="image/*" class="hidden"
-                               @change="const f = $event.target.files[0]; if(f) { const r = new FileReader(); r.onload = e => previewUrl = e.target.result; r.readAsDataURL(f); }">
+                    <label class="cursor-pointer bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg flex items-center gap-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        <span>Select Images to Convert</span>
+                        <input type="file" wire:model="converterImages" accept="image/*" multiple class="hidden"
+                               @change="
+                                   previewUrls = [];
+                                   fileNames = [];
+                                   const files = Array.from($event.target.files);
+                                   files.forEach(f => {
+                                       fileNames.push(f.name);
+                                       const r = new FileReader();
+                                       r.onload = e => previewUrls.push(e.target.result);
+                                       r.readAsDataURL(f);
+                                   });
+                               ">
                     </label>
 
-                    <template x-if="previewUrl">
+                    <div x-show="uploading" x-cloak class="w-full max-w-md mt-6 bg-orange-50 p-4 rounded-2xl border border-orange-200">
+                        <div class="flex justify-between text-xs font-bold text-orange-700 mb-1.5">
+                            <span>Uploading image(s)...</span>
+                            <span x-text="progress + '%'"></span>
+                        </div>
+                        <div class="w-full bg-orange-200 rounded-full h-2.5 overflow-hidden">
+                            <div class="bg-orange-600 h-2.5 rounded-full transition-all duration-300" :style="'width: ' + progress + '%'"></div>
+                        </div>
+                    </div>
+
+                    <template x-if="previewUrls.length > 0">
                         <div class="w-full max-w-md mt-8 p-6 bg-slate-50 border border-slate-200 rounded-3xl text-left space-y-4">
-                            <img :src="previewUrl" class="w-20 h-20 object-cover rounded-2xl">
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <template x-for="url in previewUrls.slice(0, 5)">
+                                    <img :src="url" class="w-16 h-16 object-cover rounded-2xl border border-gray-200">
+                                </template>
+                                <template x-if="previewUrls.length > 5">
+                                    <div class="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center text-sm font-bold text-gray-500">
+                                        +<span x-text="previewUrls.length - 5"></span>
+                                    </div>
+                                </template>
+                            </div>
+                            <p class="text-sm font-semibold text-gray-600 mb-4">
+                                <span x-text="previewUrls.length"></span> image(s) selected
+                            </p>
                             <select wire:model="converterFormat" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm font-semibold">
                                 <option value="jpeg">JPG / JPEG</option>
                                 <option value="webp">WebP</option>
                                 <option value="png">PNG</option>
                             </select>
-                            <button wire:click="convertImage" class="w-full bg-orange-600 text-white py-3 rounded-2xl font-bold">Convert Now</button>
+                            <button wire:click="convertImage" wire:loading.attr="disabled" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-2xl font-bold transition-all shadow-md">
+                                <span wire:loading.remove wire:target="convertImage">Convert Now</span>
+                                <span wire:loading wire:target="convertImage">Converting...</span>
+                            </button>
                         </div>
                     </template>
                 </div>
@@ -392,65 +405,64 @@
             </div>
         </div>
         @endif
-
-        {{-- Bottom Stats & Features Bar (Pixel Match with Image) --}}
-        <div class="bg-white rounded-3xl p-8 shadow-md border border-gray-100 mb-12">
+               {{-- Bottom Stats & Features Bar --}}
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200/80 mb-12">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
 
                 {{-- Left Text + Illustration --}}
                 <div class="lg:col-span-4 flex items-center gap-4">
-                    <div class="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 flex-shrink-0 shadow-inner">
-                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <div class="w-16 h-16 bg-emerald-600 text-white rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                     </div>
                     <div>
-                        <h3 class="font-extrabold text-gray-900 text-base mb-1">Why Choose Nagarik+ Compressor?</h3>
-                        <p class="text-xs text-gray-500 leading-relaxed font-medium">
-                            Our advanced compression technology ensures maximum file size reduction while maintaining the highest possible image quality.
+                        <h3 class="font-extrabold text-slate-900 text-base mb-1">Why Choose Nagarik+ Compressor?</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                            Our advanced compression technology ensures maximum file size reduction while maintaining original image clarity.
                         </p>
                     </div>
                 </div>
 
                 {{-- Right 4 Stat Metrics Grid --}}
-                <div class="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                <div class="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4 divide-y md:divide-y-0 md:divide-x divide-slate-200">
 
                     {{-- Metric 1 --}}
                     <div class="text-center pt-4 md:pt-0 md:px-4">
-                        <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <div class="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center mx-auto mb-2 font-bold">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                         </div>
-                        <p class="text-2xl font-black text-purple-600">98%</p>
-                        <p class="text-xs font-bold text-gray-900 mt-0.5">Quality Retention</p>
-                        <p class="text-[10px] text-gray-400 font-medium">Best in class</p>
+                        <p class="text-2xl font-black text-slate-900">98%</p>
+                        <p class="text-xs font-extrabold text-slate-800 mt-0.5">Quality Retention</p>
+                        <p class="text-[10px] text-slate-500 font-bold">Best in class</p>
                     </div>
 
                     {{-- Metric 2 --}}
                     <div class="text-center pt-4 md:pt-0 md:px-4">
-                        <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <div class="w-10 h-10 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center mx-auto mb-2 font-bold">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                         </div>
-                        <p class="text-2xl font-black text-emerald-600">90%</p>
-                        <p class="text-xs font-bold text-gray-900 mt-0.5">Size Reduction</p>
-                        <p class="text-[10px] text-gray-400 font-medium">Average savings</p>
+                        <p class="text-2xl font-black text-slate-900">90%</p>
+                        <p class="text-xs font-extrabold text-slate-800 mt-0.5">Size Reduction</p>
+                        <p class="text-[10px] text-slate-500 font-bold">Average savings</p>
                     </div>
 
                     {{-- Metric 3 --}}
                     <div class="text-center pt-4 md:pt-0 md:px-4">
-                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center mx-auto mb-2 font-bold">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         </div>
-                        <p class="text-2xl font-black text-blue-600">10M+</p>
-                        <p class="text-xs font-bold text-gray-900 mt-0.5">Images Compressed</p>
-                        <p class="text-[10px] text-gray-400 font-medium">And counting</p>
+                        <p class="text-2xl font-black text-slate-900">10M+</p>
+                        <p class="text-xs font-extrabold text-slate-800 mt-0.5">Images Compressed</p>
+                        <p class="text-[10px] text-slate-500 font-bold">And counting</p>
                     </div>
 
                     {{-- Metric 4 --}}
                     <div class="text-center pt-4 md:pt-0 md:px-4">
-                        <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                        <div class="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center mx-auto mb-2 font-bold">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                         </div>
-                        <p class="text-2xl font-black text-amber-600">100%</p>
-                        <p class="text-xs font-bold text-gray-900 mt-0.5">Secure</p>
-                        <p class="text-[10px] text-gray-400 font-medium">Files are protected</p>
+                        <p class="text-2xl font-black text-slate-900">100%</p>
+                        <p class="text-xs font-extrabold text-slate-800 mt-0.5">Secure</p>
+                        <p class="text-[10px] text-slate-500 font-bold">Files are protected</p>
                     </div>
 
                 </div>

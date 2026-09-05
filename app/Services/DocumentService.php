@@ -18,11 +18,15 @@ class DocumentService
      */
     public function store(User $user, array $data, ?UploadedFile $file = null): Document
     {
-        // Encrypt sensitive fields
+        // Encrypt sensitive fields — merge holder_name into metadata
+        $metaData = $data['metadata'] ?? [];
+        if (!empty($data['holder_name'])) {
+            $metaData['holder_name'] = $data['holder_name'];
+        }
         $sensitiveFields = array_filter([
             'document_number' => $data['document_number'] ?? null,
             'issued_by'       => $data['issued_by'] ?? null,
-            'metadata'        => $data['metadata'] ?? null,
+            'metadata'        => $metaData ?: null,
         ]);
         $encryptedData = $this->encryption->encrypt($sensitiveFields);
 
@@ -53,12 +57,14 @@ class DocumentService
             'file_name'            => $fileName,
             'mime_type'            => $mimeType,
             'file_size'            => $fileSize,
-            'issue_date'           => $data['issue_date'] ?? null,
-            'expiry_date'          => $data['expiry_date'] ?? null,
+            'issue_date'           => !empty($data['issue_date']) ? $data['issue_date'] : null,
+            'expiry_date'          => !empty($data['expiry_date']) ? $data['expiry_date'] : null,
             'issued_by'            => null, // stored encrypted
             'status'               => 'active',
             'reminder_enabled'     => $data['reminder_enabled'] ?? true,
             'reminder_days_before' => $data['reminder_days_before'] ?? 30,
+            // Store metadata (including holder_name) unencrypted for fast listing
+            'metadata'             => $metaData ?: null,
         ]);
 
         // Auto-create reminder if expiry date provided

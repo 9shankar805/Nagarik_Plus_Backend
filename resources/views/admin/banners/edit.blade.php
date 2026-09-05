@@ -7,50 +7,88 @@
 </div>
 
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 max-w-2xl">
-    <form action="{{ route('admin.banners.update', $banner) }}" method="POST" class="space-y-4">
+    <form action="{{ route('admin.banners.update', $banner) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
         @csrf
         @method('PUT')
 
         <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Title (English)</label>
-            <input type="text" name="title_en" value="{{ $banner->title_en }}" required
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Title (English) <span class="text-red-500">*</span></label>
+            <input type="text" name="title" value="{{ old('title', $banner->title) }}" required
                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
         </div>
 
         <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1">Title (Nepali)</label>
-            <input type="text" name="title_np" value="{{ $banner->title_np }}"
+            <input type="text" name="title_np" value="{{ old('title_np', $banner->title_np) }}"
                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
         </div>
 
         <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Subtitle (English)</label>
-            <input type="text" name="subtitle_en" value="{{ $banner->subtitle_en }}"
-                   class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+            <textarea name="description" rows="3"
+                      class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">{{ old('description', $banner->description) }}</textarea>
         </div>
 
         <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">Subtitle (Nepali)</label>
-            <input type="text" name="subtitle_np" value="{{ $banner->subtitle_np }}"
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Banner Image</label>
+            <input type="file" name="image" accept="image/jpeg,image/jpg,image/png,image/webp"
+                   class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+            <p class="text-xs text-gray-500 mt-1">Upload image (JPG, PNG, WEBP - Max 5MB)</p>
+            @if($banner->image_url)
+                <div class="mt-2">
+                    <img src="{{ asset($banner->image_url) }}" alt="Current banner" class="h-20 rounded border">
+                    <p class="text-xs text-gray-500 mt-1">Current: {{ basename($banner->image_url) }}</p>
+                </div>
+            @endif
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Or Image URL</label>
+            <input type="url" name="image_url" value="{{ old('image_url', $banner->image_url) }}"
                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
         </div>
 
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">CTA Button 1</label>
-                <input type="text" name="cta1" value="{{ $banner->cta1 }}"
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Link Type <span class="text-red-500">*</span></label>
+                <select name="link_type" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+                    <option value="none" {{ old('link_type', $banner->link_type) == 'none' ? 'selected' : '' }}>None</option>
+                    <option value="news" {{ old('link_type', $banner->link_type) == 'news' ? 'selected' : '' }}>News Article</option>
+                    <option value="service" {{ old('link_type', $banner->link_type) == 'service' ? 'selected' : '' }}>Citizen Service</option>
+                    <option value="external" {{ old('link_type', $banner->link_type) == 'external' ? 'selected' : '' }}>External URL</option>
+                    <option value="document" {{ old('link_type', $banner->link_type) == 'document' ? 'selected' : '' }}>Document</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Sort Order</label>
+                <input type="number" name="sort_order" value="{{ old('sort_order', $banner->sort_order) }}" min="0"
+                       class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Link Value</label>
+            <input type="text" name="link_value" value="{{ old('link_value', $banner->link_value) }}"
+                   placeholder="ID, slug, or full URL depending on link type"
+                   class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Starts At</label>
+                <input type="datetime-local" name="starts_at" value="{{ old('starts_at', $banner->starts_at ? $banner->starts_at->format('Y-m-d\TH:i') : '') }}"
                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
             </div>
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">CTA Button 2</label>
-                <input type="text" name="cta2" value="{{ $banner->cta2 }}"
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Ends At</label>
+                <input type="datetime-local" name="ends_at" value="{{ old('ends_at', $banner->ends_at ? $banner->ends_at->format('Y-m-d\TH:i') : '') }}"
                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm">
             </div>
         </div>
 
         <div>
             <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" name="is_active" value="1" @if($banner->is_active) checked @endif class="w-4 h-4 text-blue-600 rounded">
+                <input type="checkbox" name="is_active" value="1" {{ old('is_active', $banner->is_active) ? 'checked' : '' }} class="w-4 h-4 text-blue-600 rounded">
                 <span class="text-sm font-medium text-gray-700">Publish & Make Active</span>
             </label>
         </div>

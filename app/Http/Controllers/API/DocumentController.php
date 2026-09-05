@@ -34,11 +34,16 @@ class DocumentController extends Controller
         }
 
         $documents = $query->get()->map(function ($doc) {
+            // Decode metadata to extract holder_name
+            $meta = $doc->metadata ?? [];
+            $holderName = $meta['holder_name'] ?? null;
+
             return [
                 'id'           => $doc->id,
                 'title'        => $doc->title,
                 'type'         => $doc->type,
                 'status'       => $doc->status,
+                'holder_name'  => $holderName,
                 'issue_date'   => $doc->issue_date?->toDateString(),
                 'expiry_date'  => $doc->expiry_date?->toDateString(),
                 'days_left'    => $doc->daysUntilExpiry(),
@@ -46,6 +51,7 @@ class DocumentController extends Controller
                 'is_verified'  => $doc->is_verified,
                 'has_file'     => !is_null($doc->file_path),
                 'file_name'    => $doc->file_name,
+                'metadata'     => $meta,
                 'created_at'   => $doc->created_at->toDateTimeString(),
             ];
         });
@@ -70,7 +76,8 @@ class DocumentController extends Controller
     {
         $data = $request->validate([
             'title'                => 'required|string|max:100',
-            'type'                 => 'required|string|in:national_id,passport,driving_license,pan,citizenship,voter_id,birth_certificate,vehicle_bluebook,insurance,medical,property,academic,other',
+            'type'                 => 'required|string|in:national_id,passport,driving_license,pan,citizenship,voter_id,birth_certificate,vehicle_bluebook,insurance,medical,property,academic,other,marriage_certificate,death_certificate,migration_certificate,nea_bill,press_pass,voter_id',
+            'holder_name'          => 'nullable|string|max:100',
             'document_number'      => 'nullable|string|max:50',
             'issue_date'           => 'nullable|date',
             'expiry_date'          => 'nullable|date|after_or_equal:issue_date',
@@ -146,7 +153,8 @@ class DocumentController extends Controller
     }
 
     /**
-     * Delete a document (moves file to quarantine, soft-deletes DB record)
+     * Delete a document — delegates to DocumentService which handles
+     * quarantine move, reminder cascade, and soft-delete atomically.
      */
     public function destroy(Request $request, int $id): JsonResponse
     {
@@ -154,14 +162,7 @@ class DocumentController extends Controller
                             ->where('user_id', $request->user()->id)
                             ->firstOrFail();
 
-        // Task 5.2: Move file to quarantine instead of hard-deleting
-        if ($document->file_path && Storage::exists($document->file_path)) {
-            $quarantinePath = "quarantine/{$document->user_id}/" . basename($document->file_path);
-            Storage::move($document->file_path, $quarantinePath);
-        }
-
-        // Soft-delete the DB record (Document model uses SoftDeletes)
-        $document->delete();
+        $this->documentService->delete($document);
 
         return response()->json(['success' => true, 'message' => 'Document deleted.']);
     }
